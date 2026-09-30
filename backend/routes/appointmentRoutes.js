@@ -7,6 +7,7 @@ const {
   getMyAppointments,
   getDoctorAppointments,
   getAdminAppointments,
+  updateAppointmentStatus,
 } = require("../controllers/appointmentController");
 
 const {
@@ -53,6 +54,15 @@ router.get(
   "/available-slots/:doctorId",
   getAvailableSlots
 );
+
+
+router.patch(
+  "/:id/status",
+  protect,
+  authorizeRoles("doctor", "admin"),
+  updateAppointmentStatus
+);
+
 
 
 

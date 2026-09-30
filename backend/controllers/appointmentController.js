@@ -474,11 +474,128 @@ const getAdminAppointments = async (req, res) => {
 
 
 
+const updateAppointmentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate appointment ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid appointment ID",
+      });
+    }
+
+    // Validate requested status
+    const allowedStatuses = [
+      "confirmed",
+      "completed",
+      "cancelled",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message:
+          "Invalid status. Allowed values are confirmed, completed, or cancelled",
+      });
+    }
+
+    // Find appointment
+    const appointment = await Appointment.findById(id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        message: "Appointment not found",
+      });
+    }
+
+    // Admin can update any appointment
+    if (req.user.role === "admin") {
+      // Admin override
+    } else {
+      // Doctor must own the appointment
+      if (req.user.role !== "doctor") {
+        return res.status(403).json({
+          message: "Only doctors and admins can update appointment status",
+        });
+      }
+
+      const doctor = await Doctor.findOne({
+        user: req.user._id,
+      });
+
+      if (!doctor) {
+        return res.status(404).json({
+          message: "Doctor profile not found",
+        });
+      }
+
+      // Make sure this appointment belongs to this doctor
+      if (appointment.doctor.toString() !== doctor._id.toString()) {
+        return res.status(403).json({
+          message:
+            "You can only update appointments assigned to you",
+        });
+      }
+    }
+
+    // Validate status transition
+    const currentStatus = appointment.status;
+
+    const validTransitions = {
+      pending: ["confirmed", "cancelled"],
+      confirmed: ["completed", "cancelled"],
+      completed: [],
+      cancelled: [],
+      "no-show": [],
+    };
+
+    if (!validTransitions[currentStatus].includes(status)) {
+      return res.status(400).json({
+        message: `Cannot change appointment status from ${currentStatus} to ${status}`,
+      });
+    }
+
+    // Update status
+    appointment.status = status;
+
+    await appointment.save();
+
+    // Populate response
+    const updatedAppointment = await Appointment.findById(
+      appointment._id
+    )
+      .populate("patient", "name email phone")
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email phone profileImage",
+        },
+      });
+
+    res.status(200).json({
+      message: `Appointment ${status} successfully`,
+      appointment: updatedAppointment,
+    });
+  } catch (error) {
+    console.error("Update appointment status error:", error);
+
+    res.status(500).json({
+      message: "Failed to update appointment status",
+    });
+  }
+};
+
+
+
+
 module.exports = {
   createAppointment,
   getAvailableSlots,
   getMyAppointments,
   getDoctorAppointments,
   getAdminAppointments,
+  updateAppointmentStatus,
 };
 
