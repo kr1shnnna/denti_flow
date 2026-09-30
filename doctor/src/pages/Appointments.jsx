@@ -1,7 +1,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Eye, Search, X } from "lucide-react";
-import { getDoctorAppointments } from "../services/api";
+import {
+  getDoctorAppointments,
+  updateAppointmentStatus,
+} from "../services/api";
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -12,32 +15,44 @@ const Appointments = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  // =========================
+  // Fetch appointments
+  // =========================
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getDoctorAppointments();
+
+      console.log("Doctor appointments:", data);
+
+      setAppointments(data.appointments || []);
+    } catch (error) {
+      console.error(
+        "Failed to fetch appointments:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+          "Failed to load appointments."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        const data = await getDoctorAppointments();
-
-        console.log("Doctor appointments:", data);
-
-        setAppointments(data.appointments || []);
-      } catch (error) {
-        console.error("Failed to fetch appointments:", error);
-
-        setError(
-          error.response?.data?.message ||
-            "Failed to load appointments."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAppointments();
   }, []);
+
+  // =========================
+  // Search + filter
+  // =========================
 
   const filteredAppointments = useMemo(() => {
     return appointments.filter((appointment) => {
@@ -68,6 +83,10 @@ const Appointments = () => {
       return matchesSearch && matchesStatus;
     });
   }, [appointments, search, statusFilter]);
+
+  // =========================
+  // Format helpers
+  // =========================
 
   const formatDate = (date) => {
     if (!date) return "—";
@@ -102,7 +121,10 @@ const Appointments = () => {
   const formatStatus = (status) => {
     if (!status) return "Unknown";
 
-    return status.charAt(0).toUpperCase() + status.slice(1);
+    return (
+      status.charAt(0).toUpperCase() +
+      status.slice(1)
+    );
   };
 
   const getStatusStyle = (status) => {
@@ -120,10 +142,71 @@ const Appointments = () => {
       case "canceled":
         return "bg-red-50 text-red-600";
 
+      case "rejected":
+        return "bg-red-50 text-red-600";
+
       default:
         return "bg-slate-50 text-slate-600";
     }
   };
+
+  // =========================
+  // Status update
+  // =========================
+
+  const handleStatusUpdate = async (newStatus) => {
+    if (!selectedAppointment) return;
+
+    try {
+      setUpdatingStatus(true);
+
+      const data = await updateAppointmentStatus(
+        selectedAppointment._id,
+        newStatus
+      );
+
+      console.log("Status updated:", data);
+
+      /*
+        Use the appointment returned by the backend
+        if available. Otherwise update the existing
+        appointment locally.
+      */
+
+      const updatedAppointment =
+        data.appointment || {
+          ...selectedAppointment,
+          status: newStatus,
+        };
+
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((appointment) =>
+          appointment._id ===
+          selectedAppointment._id
+            ? updatedAppointment
+            : appointment
+        )
+      );
+
+      setSelectedAppointment(updatedAppointment);
+    } catch (error) {
+      console.error(
+        "Failed to update appointment status:",
+        error
+      );
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to update appointment status."
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  // =========================
+  // Filters
+  // =========================
 
   const filters = [
     "All",
@@ -132,6 +215,10 @@ const Appointments = () => {
     "Completed",
     "Cancelled",
   ];
+
+  // =========================
+  // Render
+  // =========================
 
   return (
     <>
@@ -298,7 +385,7 @@ const Appointments = () => {
                           </span>
                         </td>
 
-                        {/* View */}
+                        {/* Action */}
                         <td className="px-6 py-4 text-right">
                           <button
                             type="button"
@@ -327,7 +414,10 @@ const Appointments = () => {
         </div>
       </div>
 
+      {/* ========================= */}
       {/* Appointment Details Modal */}
+      {/* ========================= */}
+
       {selectedAppointment && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4 backdrop-blur-sm"
@@ -457,14 +547,91 @@ const Appointments = () => {
               </div>
             </div>
 
+            {/* ========================= */}
+            {/* Status Actions */}
+            {/* ========================= */}
+
+            <div className="border-t border-slate-100 px-6 py-4">
+              {selectedAppointment.status?.toLowerCase() ===
+                "pending" && (
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    disabled={updatingStatus}
+                    onClick={() =>
+                      handleStatusUpdate(
+                        "cancelled"
+                      )
+                    }
+                    className="rounded-xl border border-red-200 px-5 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {updatingStatus
+                      ? "Updating..."
+                      : "Reject"}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={updatingStatus}
+                    onClick={() =>
+                      handleStatusUpdate(
+                        "confirmed"
+                      )
+                    }
+                    className="rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {updatingStatus
+                      ? "Updating..."
+                      : "Confirm"}
+                  </button>
+                </div>
+              )}
+
+              {selectedAppointment.status?.toLowerCase() ===
+                "confirmed" && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    disabled={updatingStatus}
+                    onClick={() =>
+                      handleStatusUpdate(
+                        "completed"
+                      )
+                    }
+                    className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {updatingStatus
+                      ? "Updating..."
+                      : "Mark as Completed"}
+                  </button>
+                </div>
+              )}
+
+              {(selectedAppointment.status?.toLowerCase() ===
+                "completed" ||
+                selectedAppointment.status?.toLowerCase() ===
+                  "cancelled" ||
+                selectedAppointment.status?.toLowerCase() ===
+                  "canceled" ||
+                selectedAppointment.status?.toLowerCase() ===
+                  "rejected") && (
+                <div className="flex justify-end">
+                  <p className="text-sm text-slate-400">
+                    No further actions available.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Modal Footer */}
             <div className="flex justify-end border-t border-slate-100 px-6 py-4">
               <button
                 type="button"
+                disabled={updatingStatus}
                 onClick={() =>
                   setSelectedAppointment(null)
                 }
-                className="rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
+                className="rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200 disabled:opacity-50"
               >
                 Close
               </button>

@@ -31,6 +31,20 @@ export const getDoctorAppointments = async () => {
 
 
 
+export const updateAppointmentStatus = async (
+  appointmentId,
+  status
+) => {
+  const response = await api.patch(
+    `/appointments/${appointmentId}/status`,
+    { status }
+  );
+
+  return response.data;
+};
+
+
+
 
 export default api;
 
