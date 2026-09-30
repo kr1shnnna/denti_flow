@@ -9,6 +9,7 @@ const {
   getAdminAppointments,
   updateAppointmentStatus,
   cancelAppointment,
+  getAppointmentById,
 } = require("../controllers/appointmentController");
 
 const {
@@ -70,6 +71,13 @@ router.patch(
   protect,
   authorizeRoles("patient"),
   cancelAppointment
+);
+
+router.get(
+  "/:id",
+  protect,
+  authorizeRoles("patient", "doctor", "admin"),
+  getAppointmentById
 );
 
 

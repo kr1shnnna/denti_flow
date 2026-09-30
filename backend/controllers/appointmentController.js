@@ -680,6 +680,97 @@ const cancelAppointment = async (req, res) => {
 
 
 
+const getAppointmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate appointment ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid appointment ID",
+      });
+    }
+
+    const appointment = await Appointment.findById(id)
+      .populate("patient", "name email phone profileImage")
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email phone profileImage",
+        },
+      });
+
+    if (!appointment) {
+      return res.status(404).json({
+        message: "Appointment not found",
+      });
+    }
+
+    // Admin can view any appointment
+    if (req.user.role === "admin") {
+      return res.status(200).json({
+        appointment,
+      });
+    }
+
+    // Patient can only view their own appointment
+    if (req.user.role === "patient") {
+      if (
+        appointment.patient._id.toString() !==
+        req.user._id.toString()
+      ) {
+        return res.status(403).json({
+          message: "You can only view your own appointments",
+        });
+      }
+
+      return res.status(200).json({
+        appointment,
+      });
+    }
+
+    // Doctor can only view appointments assigned to them
+    if (req.user.role === "doctor") {
+      const doctor = await Doctor.findOne({
+        user: req.user._id,
+      });
+
+      if (!doctor) {
+        return res.status(404).json({
+          message: "Doctor profile not found",
+        });
+      }
+
+      if (
+        appointment.doctor._id.toString() !==
+        doctor._id.toString()
+      ) {
+        return res.status(403).json({
+          message:
+            "You can only view appointments assigned to you",
+        });
+      }
+
+      return res.status(200).json({
+        appointment,
+      });
+    }
+
+    return res.status(403).json({
+      message: "You do not have permission to view this appointment",
+    });
+  } catch (error) {
+    console.error("Get appointment by ID error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch appointment",
+    });
+  }
+};
+
+
+
 
 module.exports = {
   createAppointment,
@@ -689,5 +780,6 @@ module.exports = {
   getAdminAppointments,
   updateAppointmentStatus,
   cancelAppointment,
+  getAppointmentById,
 };
 
