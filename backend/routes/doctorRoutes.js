@@ -4,6 +4,7 @@ const {
   createDoctor,
   getDoctors,
   getDoctorById,
+  updateDoctorAvailability,
 } = require("../controllers/doctorController");
 
 const {
@@ -19,6 +20,14 @@ router.post(
   authorizeRoles("admin"),
   createDoctor
 );
+
+router.patch(
+  "/:id/availability",
+  protect,
+  authorizeRoles("admin"),
+  updateDoctorAvailability
+);
+
 
 router.get("/", getDoctors);
 
