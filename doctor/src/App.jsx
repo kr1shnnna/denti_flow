@@ -12,6 +12,8 @@ import TodayAppointments from "./components/TodayAppointments";
 
 import Appointments from "./pages/Appointments";
 
+import Patients from "./pages/Patients";
+
 function Dashboard() {
   return (
     <div>
@@ -22,13 +24,7 @@ function Dashboard() {
   );
 }
 
-function Patients() {
-  return (
-    <h1 className="text-2xl font-semibold">
-      Patients
-    </h1>
-  );
-}
+
 
 function Availability() {
   return (
