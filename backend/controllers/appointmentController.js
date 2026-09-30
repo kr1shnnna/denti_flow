@@ -390,9 +390,40 @@ const getAvailableSlots = async (req, res) => {
   }
 };
 
+
+
+// Get logged-in patient's appointments
+const getMyAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find({
+      patient: req.user._id,
+    })
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email phone profileImage",
+        },
+      })
+      .sort({ date: 1, createdAt: -1 });
+
+    res.status(200).json({
+      appointments,
+    });
+  } catch (error) {
+    console.error("Get my appointments error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch your appointments",
+    });
+  }
+};
+
+
 module.exports = {
   createAppointment,
   getAppointments,
   getAvailableSlots,
+  getMyAppointments,
 };
 
