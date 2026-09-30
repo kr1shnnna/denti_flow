@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Eye } from "lucide-react";
 import { getDoctorAppointments } from "../services/api";
@@ -24,8 +23,7 @@ const TodayAppointments = () => {
         console.error("Failed to fetch appointments:", error);
 
         setError(
-          error.response?.data?.message ||
-            "Failed to load appointments."
+          error.response?.data?.message || "Failed to load appointments.",
         );
       } finally {
         setLoading(false);
@@ -58,14 +56,11 @@ const TodayAppointments = () => {
     }
   };
 
-  const formatTime = (time) => {
-    if (!time) return "—";
-
-    const [hours, minutes] = time.split(":");
-
+  const formatTime = (timeSlot) => {
+    if (!timeSlot) return "—";
+    const [hours, minutes] = timeSlot.split(":");
     const date = new Date();
     date.setHours(Number(hours), Number(minutes));
-
     return date.toLocaleTimeString("en-IN", {
       hour: "numeric",
       minute: "2-digit",
@@ -73,20 +68,11 @@ const TodayAppointments = () => {
   };
 
   const getPatientName = (appointment) => {
-    return (
-      appointment.patient?.name ||
-      appointment.patientName ||
-      "Unknown patient"
-    );
+    return appointment.patient?.name || "Unknown patient";
   };
 
   const getServiceName = (appointment) => {
-    return (
-      appointment.service ||
-      appointment.serviceName ||
-      appointment.reason ||
-      "Appointment"
-    );
+    return appointment.reason || "Appointment";
   };
 
   return (
@@ -174,7 +160,7 @@ const TodayAppointments = () => {
                 >
                   {/* Time */}
                   <td className="px-6 py-4 text-sm font-medium text-slate-700">
-                    {formatTime(appointment.time)}
+                    {formatTime(appointment.timeSlot)}
                   </td>
 
                   {/* Patient */}
@@ -193,7 +179,7 @@ const TodayAppointments = () => {
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusStyle(
-                        appointment.status
+                        appointment.status,
                       )}`}
                     >
                       {appointment.status}
@@ -221,4 +207,3 @@ const TodayAppointments = () => {
 };
 
 export default TodayAppointments;
-
