@@ -139,7 +139,7 @@ const getDoctorById = async (req, res) => {
 
 const updateDoctorAvailability = async (req, res) => {
   try {
-    const { availability } = req.body;
+    const { availability } = req.body || {};
 
     if (!Array.isArray(availability)) {
       return res.status(400).json({
