@@ -189,9 +189,40 @@ const updateDoctorAvailability = async (req, res) => {
 };
 
 
+
+const getMyDoctorProfile = async (req, res) => {
+  try {
+    const doctor = await Doctor.findOne({
+      user: req.user._id,
+    }).populate(
+      "user",
+      "name email phone profileImage"
+    );
+
+    if (!doctor) {
+      return res.status(404).json({
+        message: "Doctor profile not found",
+      });
+    }
+
+    res.status(200).json({
+      doctor,
+    });
+  } catch (error) {
+    console.error("Get my doctor profile error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch doctor profile",
+    });
+  }
+};
+
+
+
 module.exports = {
   createDoctor,
   getDoctors,
   getDoctorById,
   updateDoctorAvailability,
+  getMyDoctorProfile,
 };
