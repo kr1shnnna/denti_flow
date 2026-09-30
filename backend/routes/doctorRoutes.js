@@ -6,7 +6,10 @@ const {
   getDoctorById,
 } = require("../controllers/doctorController");
 
-const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+const {
+  protect,
+  authorizeRoles,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
 

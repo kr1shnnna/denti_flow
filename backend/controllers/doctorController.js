@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+
 const Doctor = require("../models/Doctor");
 const User = require("../models/User");
 
@@ -89,4 +90,55 @@ const createDoctor = async (req, res) => {
       message: "Failed to create doctor",
     });
   }
+};
+
+// Get all doctors
+const getDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.find({ isAvailable: true })
+      .populate("user", "name email phone profileImage")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      doctors,
+    });
+  } catch (error) {
+    console.error("Get doctors error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch doctors",
+    });
+  }
+};
+
+// Get a single doctor
+const getDoctorById = async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.params.id).populate(
+      "user",
+      "name email phone profileImage"
+    );
+
+    if (!doctor) {
+      return res.status(404).json({
+        message: "Doctor not found",
+      });
+    }
+
+    res.status(200).json({
+      doctor,
+    });
+  } catch (error) {
+    console.error("Get doctor error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch doctor",
+    });
+  }
+};
+
+module.exports = {
+  createDoctor,
+  getDoctors,
+  getDoctorById,
 };
