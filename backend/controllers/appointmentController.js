@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Appointment = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
+const createNotification = require("../utils/createNotification");
 
 // Create appointment
 const createAppointment = async (req, res) => {
@@ -91,9 +92,7 @@ const createAppointment = async (req, res) => {
 
     // Find doctor's schedule for selected day
     const schedule = doctorData.availability.find(
-      (item) =>
-        item.day === dayName &&
-        item.isAvailable === true
+      (item) => item.day === dayName && item.isAvailable === true,
     );
 
     if (!schedule) {
@@ -122,20 +121,17 @@ const createAppointment = async (req, res) => {
     const endTime = timeToMinutes(schedule.endTime);
 
     // Make sure the selected time is a 30-minute slot
-    const isValidSlot =
-      (selectedTime - startTime) % 30 === 0;
+    const isValidSlot = (selectedTime - startTime) % 30 === 0;
 
     if (!isValidSlot) {
       return res.status(400).json({
-        message: "Invalid appointment slot. Appointments must be in 30-minute intervals",
+        message:
+          "Invalid appointment slot. Appointments must be in 30-minute intervals",
       });
     }
 
     // Make sure the appointment fits inside working hours
-    if (
-      selectedTime < startTime ||
-      selectedTime + 30 > endTime
-    ) {
+    if (selectedTime < startTime || selectedTime + 30 > endTime) {
       return res.status(400).json({
         message: "Selected time is outside the doctor's working hours",
       });
@@ -144,8 +140,7 @@ const createAppointment = async (req, res) => {
     // Prevent booking a past date
     const now = new Date();
 
-    const todayString =
-      `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const todayString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
     if (date < todayString) {
       return res.status(400).json({
@@ -155,8 +150,7 @@ const createAppointment = async (req, res) => {
 
     // If appointment is today, prevent booking past time slots
     if (date === todayString) {
-      const currentMinutes =
-        now.getHours() * 60 + now.getMinutes();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
       if (selectedTime <= currentMinutes) {
         return res.status(400).json({
@@ -197,6 +191,18 @@ const createAppointment = async (req, res) => {
       reason,
     });
 
+    const doctorProfile = await Doctor.findById(doctor).select("user");
+
+    if (doctorProfile) {
+      await createNotification({
+        recipient: doctorProfile.user,
+        type: "appointment_booked",
+        title: "New Appointment Request",
+        message: `${req.user.name} booked an appointment for ${date} at ${timeSlot}.`,
+        appointment: appointment._id,
+      });
+    }
+
     res.status(201).json({
       message: "Appointment created successfully",
       appointment,
@@ -209,10 +215,6 @@ const createAppointment = async (req, res) => {
     });
   }
 };
-
-
-
-
 
 // Get available appointment slots
 const getAvailableSlots = async (req, res) => {
@@ -279,9 +281,7 @@ const getAvailableSlots = async (req, res) => {
 
     // Find doctor's schedule for selected day
     const schedule = doctor.availability.find(
-      (item) =>
-        item.day === dayName &&
-        item.isAvailable === true
+      (item) => item.day === dayName && item.isAvailable === true,
     );
 
     if (!schedule) {
@@ -304,9 +304,10 @@ const getAvailableSlots = async (req, res) => {
       const hours = Math.floor(minutes / 60);
       const mins = minutes % 60;
 
-      return `${String(hours).padStart(2, "0")}:${String(
-        mins
-      ).padStart(2, "0")}`;
+      return `${String(hours).padStart(2, "0")}:${String(mins).padStart(
+        2,
+        "0",
+      )}`;
     };
 
     const startMinutes = timeToMinutes(schedule.startTime);
@@ -342,13 +343,11 @@ const getAvailableSlots = async (req, res) => {
     });
 
     // Get booked time slots
-    const bookedSlots = appointments.map(
-      (appointment) => appointment.timeSlot
-    );
+    const bookedSlots = appointments.map((appointment) => appointment.timeSlot);
 
     // Remove booked slots
     const availableSlots = allSlots.filter(
-      (slot) => !bookedSlots.includes(slot)
+      (slot) => !bookedSlots.includes(slot),
     );
 
     res.status(200).json({
@@ -365,8 +364,6 @@ const getAvailableSlots = async (req, res) => {
     });
   }
 };
-
-
 
 // Get logged-in patient's appointments
 const getMyAppointments = async (req, res) => {
@@ -394,9 +391,6 @@ const getMyAppointments = async (req, res) => {
     });
   }
 };
-
-
-
 
 // Get appointments assigned to the logged-in doctor
 const getDoctorAppointments = async (req, res) => {
@@ -441,8 +435,6 @@ const getDoctorAppointments = async (req, res) => {
   }
 };
 
-
-
 // Get all appointments for admin
 const getAdminAppointments = async (req, res) => {
   try {
@@ -472,8 +464,6 @@ const getAdminAppointments = async (req, res) => {
   }
 };
 
-
-
 const updateAppointmentStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -487,11 +477,7 @@ const updateAppointmentStatus = async (req, res) => {
     }
 
     // Validate requested status
-    const allowedStatuses = [
-      "confirmed",
-      "completed",
-      "cancelled",
-    ];
+    const allowedStatuses = ["confirmed", "completed", "cancelled"];
 
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({
@@ -533,8 +519,7 @@ const updateAppointmentStatus = async (req, res) => {
       // Make sure this appointment belongs to this doctor
       if (appointment.doctor.toString() !== doctor._id.toString()) {
         return res.status(403).json({
-          message:
-            "You can only update appointments assigned to you",
+          message: "You can only update appointments assigned to you",
         });
       }
     }
@@ -561,10 +546,18 @@ const updateAppointmentStatus = async (req, res) => {
 
     await appointment.save();
 
+    if (status === "confirmed") {
+      await createNotification({
+        recipient: appointment.patient,
+        type: "appointment_confirmed",
+        title: "Appointment Confirmed",
+        message: `Your appointment for ${appointment.timeSlot} has been confirmed.`,
+        appointment: appointment._id,
+      });
+    }
+
     // Populate response
-    const updatedAppointment = await Appointment.findById(
-      appointment._id
-    )
+    const updatedAppointment = await Appointment.findById(appointment._id)
       .populate("patient", "name email phone")
       .populate({
         path: "doctor",
@@ -586,8 +579,6 @@ const updateAppointmentStatus = async (req, res) => {
     });
   }
 };
-
-
 
 const cancelAppointment = async (req, res) => {
   try {
@@ -626,9 +617,7 @@ const cancelAppointment = async (req, res) => {
     // Create appointment date/time
     const appointmentDateTime = new Date(appointment.date);
 
-    const [hours, minutes] = appointment.timeSlot
-      .split(":")
-      .map(Number);
+    const [hours, minutes] = appointment.timeSlot.split(":").map(Number);
 
     appointmentDateTime.setHours(hours, minutes, 0, 0);
 
@@ -637,10 +626,7 @@ const cancelAppointment = async (req, res) => {
 
     const twoHoursInMs = 2 * 60 * 60 * 1000;
 
-    if (
-      appointmentDateTime.getTime() - now.getTime() <
-      twoHoursInMs
-    ) {
+    if (appointmentDateTime.getTime() - now.getTime() < twoHoursInMs) {
       return res.status(400).json({
         message:
           "Appointments can only be cancelled at least 2 hours before the appointment",
@@ -652,10 +638,22 @@ const cancelAppointment = async (req, res) => {
 
     await appointment.save();
 
+    const doctorProfile = await Doctor.findById(appointment.doctor).select(
+      "user",
+    );
+
+    if (doctorProfile) {
+      await createNotification({
+        recipient: doctorProfile.user,
+        type: "appointment_cancelled",
+        title: "Appointment Cancelled",
+        message: `${req.user.name} cancelled their appointment scheduled for ${appointment.timeSlot}.`,
+        appointment: appointment._id,
+      });
+    }
+
     // Populate response
-    const cancelledAppointment = await Appointment.findById(
-      appointment._id
-    )
+    const cancelledAppointment = await Appointment.findById(appointment._id)
       .populate("patient", "name email phone")
       .populate({
         path: "doctor",
@@ -677,8 +675,6 @@ const cancelAppointment = async (req, res) => {
     });
   }
 };
-
-
 
 const getAppointmentById = async (req, res) => {
   try {
@@ -716,10 +712,7 @@ const getAppointmentById = async (req, res) => {
 
     // Patient can only view their own appointment
     if (req.user.role === "patient") {
-      if (
-        appointment.patient._id.toString() !==
-        req.user._id.toString()
-      ) {
+      if (appointment.patient._id.toString() !== req.user._id.toString()) {
         return res.status(403).json({
           message: "You can only view your own appointments",
         });
@@ -742,13 +735,9 @@ const getAppointmentById = async (req, res) => {
         });
       }
 
-      if (
-        appointment.doctor._id.toString() !==
-        doctor._id.toString()
-      ) {
+      if (appointment.doctor._id.toString() !== doctor._id.toString()) {
         return res.status(403).json({
-          message:
-            "You can only view appointments assigned to you",
+          message: "You can only view appointments assigned to you",
         });
       }
 
@@ -769,9 +758,6 @@ const getAppointmentById = async (req, res) => {
   }
 };
 
-
-
-
 module.exports = {
   createAppointment,
   getAvailableSlots,
@@ -782,4 +768,3 @@ module.exports = {
   cancelAppointment,
   getAppointmentById,
 };
-
