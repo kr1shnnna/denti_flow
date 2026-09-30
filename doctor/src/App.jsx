@@ -4,15 +4,18 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import DashboardHeader from "./components/Dashboardheader";
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import Login from "./pages/Login";
 
 import StatsCards from "./components/StatsCards";
 import TodayAppointments from "./components/TodayAppointments";
 
 import Appointments from "./pages/Appointments";
-
 import Patients from "./pages/Patients";
+import Availability from "./pages/Availability";
+
+// =========================
+// Dashboard
+// =========================
 
 function Dashboard() {
   return (
@@ -24,23 +27,9 @@ function Dashboard() {
   );
 }
 
-
-
-function Availability() {
-  return (
-    <h1 className="text-2xl font-semibold">
-      Availability
-    </h1>
-  );
-}
-
-function Notifications() {
-  return (
-    <h1 className="text-2xl font-semibold">
-      Notifications
-    </h1>
-  );
-}
+// =========================
+// Profile
+// =========================
 
 function Profile() {
   return (
@@ -49,6 +38,10 @@ function Profile() {
     </h1>
   );
 }
+
+// =========================
+// Doctor Layout
+// =========================
 
 function DoctorLayout() {
   return (
@@ -78,18 +71,18 @@ function DoctorLayout() {
           />
 
           <Route
-            path="/notifications"
-            element={<Notifications />}
-          />
-
-          <Route
             path="/profile"
             element={<Profile />}
           />
 
           <Route
             path="*"
-            element={<Navigate to="/dashboard" replace />}
+            element={
+              <Navigate
+                to="/dashboard"
+                replace
+              />
+            }
           />
         </Routes>
       </main>
@@ -97,16 +90,22 @@ function DoctorLayout() {
   );
 }
 
+// =========================
+// App
+// =========================
+
 function App() {
   return (
     <Routes>
       {/* Public */}
+
       <Route
         path="/login"
         element={<Login />}
       />
 
       {/* Protected doctor area */}
+
       <Route element={<ProtectedRoute />}>
         <Route
           path="/*"

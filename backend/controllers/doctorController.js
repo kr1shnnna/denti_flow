@@ -219,10 +219,69 @@ const getMyDoctorProfile = async (req, res) => {
 
 
 
+const updateMyDoctorAvailability = async (req, res) => {
+  try {
+    const { availability } = req.body || {};
+
+    if (!Array.isArray(availability)) {
+      return res.status(400).json({
+        message: "Availability must be an array",
+      });
+    }
+
+    // Sunday is a clinic-wide closed day
+    const hasSunday = availability.some(
+      (schedule) => schedule.day === "Sunday"
+    );
+
+    if (hasSunday) {
+      return res.status(400).json({
+        message: "Sunday is a clinic holiday",
+      });
+    }
+
+    const doctor = await Doctor.findOne({
+      user: req.user._id,
+    });
+
+    if (!doctor) {
+      return res.status(404).json({
+        message: "Doctor profile not found",
+      });
+    }
+
+    doctor.availability = availability;
+
+    await doctor.save();
+
+    const updatedDoctor = await Doctor.findById(
+      doctor._id
+    ).populate(
+      "user",
+      "name email phone profileImage"
+    );
+
+    res.status(200).json({
+      message: "Availability updated successfully",
+      doctor: updatedDoctor,
+    });
+  } catch (error) {
+    console.error(
+      "Update my doctor availability error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Failed to update availability",
+    });
+  }
+};
+
 module.exports = {
   createDoctor,
   getDoctors,
   getDoctorById,
   updateDoctorAvailability,
   getMyDoctorProfile,
+  updateMyDoctorAvailability,
 };

@@ -6,6 +6,7 @@ const {
   getDoctorById,
   updateDoctorAvailability,
   getMyDoctorProfile,
+  updateMyDoctorAvailability
 } = require("../controllers/doctorController");
 
 const {
@@ -22,12 +23,7 @@ router.post(
   createDoctor
 );
 
-router.patch(
-  "/:id/availability",
-  protect,
-  authorizeRoles("admin"),
-  updateDoctorAvailability
-);
+
 
 router.get(
   "/me",
@@ -36,7 +32,19 @@ router.get(
   getMyDoctorProfile
 );
 
+router.patch(
+  "/me/availability",
+  protect,
+  authorizeRoles("doctor"),
+  updateMyDoctorAvailability
+);
 
+router.patch(
+  "/:id/availability",
+  protect,
+  authorizeRoles("admin"),
+  updateDoctorAvailability
+);
 
 router.get("/", getDoctors);
 

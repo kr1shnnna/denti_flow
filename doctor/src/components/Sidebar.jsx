@@ -4,7 +4,6 @@ import {
   CalendarDays,
   Users,
   Clock3,
-  Bell,
   UserCircle,
   LogOut,
 } from "lucide-react";
@@ -33,11 +32,7 @@ const Sidebar = () => {
       icon: Clock3,
       path: "/availability",
     },
-    {
-      name: "Notifications",
-      icon: Bell,
-      path: "/notifications",
-    },
+
     {
       name: "Profile",
       icon: UserCircle,
