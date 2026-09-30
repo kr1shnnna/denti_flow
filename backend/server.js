@@ -1,11 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
+
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
-const appointmentRoutes = require("./routes/appointmentRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
+const appointmentRoutes = require("./routes/appointmentRoutes");
 
 dotenv.config();
 
@@ -15,6 +17,11 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
+
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"))
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
