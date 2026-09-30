@@ -5,13 +5,16 @@ import Sidebar from "./components/Sidebar";
 import DashboardHeader from "./components/Dashboardheader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
+import StatsCards from "./components/StatsCards";
+import TodayAppointments from "./components/TodayAppointments";
 
 function Dashboard() {
   return (
     <div>
       <DashboardHeader />
 
-      {/* Dashboard content will come here */}
+      <StatsCards />
+      <TodayAppointments />
     </div>
   );
 }

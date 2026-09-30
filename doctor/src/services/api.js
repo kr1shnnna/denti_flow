@@ -17,5 +17,20 @@ export const getMyDoctorProfile = async () => {
   return response.data;
 };
 
+export const getDoctorAppointments = async () => {
+  const token = localStorage.getItem("token");
+
+  const response = await api.get("/appointments/doctor", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
+
+
+
+
 export default api;
 
