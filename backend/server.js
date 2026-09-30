@@ -8,6 +8,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+
 
 dotenv.config();
 
@@ -29,6 +31,12 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
+
+app.use(
+  "/api/notifications",
+  notificationRoutes
+);
+
 
 app.get("/", (req, res) => {
   res.json({
