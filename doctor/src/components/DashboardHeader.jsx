@@ -7,12 +7,12 @@ const DashboardHeader = () => {
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("token");
-
   useEffect(() => {
     const fetchDoctorProfile = async () => {
       try {
-        const data = await getMyDoctorProfile(token);
+        const data = await getMyDoctorProfile();
+
+        console.log("DOCTOR API RESPONSE:", data);
 
         setDoctor(data.doctor);
       } catch (error) {
@@ -25,12 +25,8 @@ const DashboardHeader = () => {
       }
     };
 
-    if (token) {
-      fetchDoctorProfile();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+    fetchDoctorProfile();
+  }, []);
 
   const today = new Date();
 
@@ -41,15 +37,24 @@ const DashboardHeader = () => {
     year: "numeric",
   });
 
+  // Loading state
   if (loading) {
     return (
-      <header className="mb-8">
-        <div className="h-6 w-48 animate-pulse rounded bg-slate-200" />
-        <div className="mt-3 h-8 w-64 animate-pulse rounded bg-slate-200" />
+      <header className="mb-8 flex items-center justify-between">
+        <div>
+          <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
+
+          <div className="mt-3 h-8 w-64 animate-pulse rounded bg-slate-200" />
+
+          <div className="mt-2 h-4 w-80 animate-pulse rounded bg-slate-200" />
+        </div>
+
+        <div className="h-11 w-11 animate-pulse rounded-full bg-slate-200" />
       </header>
     );
   }
 
+  // If doctor profile could not be loaded
   if (!doctor) {
     return (
       <header className="mb-8">
@@ -65,15 +70,36 @@ const DashboardHeader = () => {
   }
 
   const doctorName = doctor.user?.name || "Doctor";
+
   const specialization =
     doctor.specialization || "Dentist";
 
-  const firstName = doctorName
-    .replace(/^Dr\.?\s*/i, "")
-    .split(" ")[0];
+  // Remove "Dr." before displaying first name
+  const cleanName = doctorName.replace(/^Dr\.?\s*/i, "");
 
-  const profileImage =
-    doctor.user?.profileImage || doctor.image;
+  const firstName = cleanName.split(" ")[0];
+
+  // Your backend may store the image in either place.
+ 
+
+const rawProfileImage =
+  doctor.user?.profileImage || doctor.image;
+
+const profileImage = rawProfileImage
+  ? rawProfileImage.startsWith("http")
+    ? rawProfileImage
+    : `http://localhost:5000${rawProfileImage}`
+  : null;
+
+
+
+  // Generate initials if there is no profile picture
+  const initials = cleanName
+    .split(" ")
+    .map((name) => name.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <header className="mb-8 flex items-center justify-between">
@@ -103,6 +129,7 @@ const DashboardHeader = () => {
         >
           <Bell size={20} strokeWidth={1.8} />
 
+          {/* Temporary unread indicator */}
           <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-teal-500 ring-2 ring-white" />
         </button>
 
@@ -119,7 +146,7 @@ const DashboardHeader = () => {
             />
           ) : (
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700">
-              {firstName.charAt(0)}
+              {initials}
             </div>
           )}
 

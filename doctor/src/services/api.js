@@ -5,7 +5,9 @@ const api = axios.create({
   baseURL: "http://localhost:5000/api",
 });
 
-export const getMyDoctorProfile = async (token) => {
+export const getMyDoctorProfile = async () => {
+  const token = localStorage.getItem("token");
+
   const response = await api.get("/doctors/me", {
     headers: {
       Authorization: `Bearer ${token}`,
