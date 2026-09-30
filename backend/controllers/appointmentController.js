@@ -212,31 +212,7 @@ const createAppointment = async (req, res) => {
 
 
 
-// Get appointments
-const getAppointments = async (req, res) => {
-  try {
-    const appointments = await Appointment.find()
-      .populate("patient", "name email phone")
-      .populate({
-        path: "doctor",
-        populate: {
-          path: "user",
-          select: "name email",
-        },
-      })
-      .sort({ date: 1 });
 
-    res.status(200).json({
-      appointments,
-    });
-  } catch (error) {
-    console.error("Get appointments error:", error);
-
-    res.status(500).json({
-      message: "Failed to fetch appointments",
-    });
-  }
-};
 
 // Get available appointment slots
 const getAvailableSlots = async (req, res) => {
@@ -420,10 +396,89 @@ const getMyAppointments = async (req, res) => {
 };
 
 
+
+
+// Get appointments assigned to the logged-in doctor
+const getDoctorAppointments = async (req, res) => {
+  try {
+    // Find the Doctor profile belonging to the logged-in user
+    const doctor = await Doctor.findOne({
+      user: req.user._id,
+    });
+
+    if (!doctor) {
+      return res.status(404).json({
+        message: "Doctor profile not found",
+      });
+    }
+
+    // Get only appointments assigned to this doctor
+    const appointments = await Appointment.find({
+      doctor: doctor._id,
+    })
+      .populate("patient", "name email phone")
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email phone profileImage",
+        },
+      })
+      .sort({
+        date: 1,
+        createdAt: -1,
+      });
+
+    res.status(200).json({
+      appointments,
+    });
+  } catch (error) {
+    console.error("Get doctor appointments error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch doctor appointments",
+    });
+  }
+};
+
+
+
+// Get all appointments for admin
+const getAdminAppointments = async (req, res) => {
+  try {
+    const appointments = await Appointment.find()
+      .populate("patient", "name email phone")
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email phone profileImage",
+        },
+      })
+      .sort({
+        date: 1,
+        createdAt: -1,
+      });
+
+    res.status(200).json({
+      appointments,
+    });
+  } catch (error) {
+    console.error("Get admin appointments error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch appointments",
+    });
+  }
+};
+
+
+
 module.exports = {
   createAppointment,
-  getAppointments,
   getAvailableSlots,
   getMyAppointments,
+  getDoctorAppointments,
+  getAdminAppointments,
 };
 

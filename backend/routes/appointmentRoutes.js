@@ -1,28 +1,54 @@
+
 const express = require("express");
 
 const {
   createAppointment,
-  getAppointments,
   getAvailableSlots,
   getMyAppointments,
+  getDoctorAppointments,
+  getAdminAppointments,
 } = require("../controllers/appointmentController");
 
-const { protect } = require("../middleware/authMiddleware");
+const {
+  protect,
+  authorizeRoles,
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
+// Patient appointments
+router.get(
+  "/my",
+  protect,
+  authorizeRoles("patient"),
+  getMyAppointments
+);
 
-// Patient appointment history 
-router.get("/my", protect, getMyAppointments);
+// Doctor appointments
+router.get(
+  "/doctor",
+  protect,
+  authorizeRoles("doctor"),
+  getDoctorAppointments
+);
 
-// Create a new appointment
-router.post("/", protect, createAppointment);
+// Admin appointments
+router.get(
+  "/admin",
+  protect,
+  authorizeRoles("admin"),
+  getAdminAppointments
+);
 
-// Get all appointments (admin only)
-router.get("/", protect, getAppointments);
+// Create appointment
+router.post(
+  "/",
+  protect,
+  authorizeRoles("patient"),
+  createAppointment
+);
 
-
-
+// Available slots
 router.get(
   "/available-slots/:doctorId",
   getAvailableSlots
@@ -31,3 +57,4 @@ router.get(
 
 
 module.exports = router;
+
