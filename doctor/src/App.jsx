@@ -4,26 +4,21 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import DashboardHeader from "./components/Dashboardheader";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 import Login from "./pages/Login";
+
 import StatsCards from "./components/StatsCards";
 import TodayAppointments from "./components/TodayAppointments";
+
+import Appointments from "./pages/Appointments";
 
 function Dashboard() {
   return (
     <div>
       <DashboardHeader />
-
       <StatsCards />
       <TodayAppointments />
     </div>
-  );
-}
-
-function Appointments() {
-  return (
-    <h1 className="text-2xl font-semibold">
-      Appointments
-    </h1>
   );
 }
 
@@ -66,12 +61,35 @@ function DoctorLayout() {
 
       <main className="ml-64 min-h-screen p-8">
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/appointments" element={<Appointments />} />
-          <Route path="/patients" element={<Patients />} />
-          <Route path="/availability" element={<Availability />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/dashboard"
+            element={<Dashboard />}
+          />
+
+          <Route
+            path="/appointments"
+            element={<Appointments />}
+          />
+
+          <Route
+            path="/patients"
+            element={<Patients />}
+          />
+
+          <Route
+            path="/availability"
+            element={<Availability />}
+          />
+
+          <Route
+            path="/notifications"
+            element={<Notifications />}
+          />
+
+          <Route
+            path="/profile"
+            element={<Profile />}
+          />
 
           <Route
             path="*"
@@ -87,11 +105,17 @@ function App() {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/login"
+        element={<Login />}
+      />
 
       {/* Protected doctor area */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/*" element={<DoctorLayout />} />
+        <Route
+          path="/*"
+          element={<DoctorLayout />}
+        />
       </Route>
     </Routes>
   );
