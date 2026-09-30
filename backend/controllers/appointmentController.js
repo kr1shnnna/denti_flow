@@ -589,6 +589,97 @@ const updateAppointmentStatus = async (req, res) => {
 
 
 
+const cancelAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate appointment ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid appointment ID",
+      });
+    }
+
+    // Find appointment
+    const appointment = await Appointment.findById(id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        message: "Appointment not found",
+      });
+    }
+
+    // Make sure the appointment belongs to the logged-in patient
+    if (appointment.patient.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "You can only cancel your own appointments",
+      });
+    }
+
+    // Patient can only cancel pending or confirmed appointments
+    if (!["pending", "confirmed"].includes(appointment.status)) {
+      return res.status(400).json({
+        message: `Cannot cancel an appointment with status "${appointment.status}"`,
+      });
+    }
+
+    // Create appointment date/time
+    const appointmentDateTime = new Date(appointment.date);
+
+    const [hours, minutes] = appointment.timeSlot
+      .split(":")
+      .map(Number);
+
+    appointmentDateTime.setHours(hours, minutes, 0, 0);
+
+    // Require at least 2 hours before appointment
+    const now = new Date();
+
+    const twoHoursInMs = 2 * 60 * 60 * 1000;
+
+    if (
+      appointmentDateTime.getTime() - now.getTime() <
+      twoHoursInMs
+    ) {
+      return res.status(400).json({
+        message:
+          "Appointments can only be cancelled at least 2 hours before the appointment",
+      });
+    }
+
+    // Cancel appointment
+    appointment.status = "cancelled";
+
+    await appointment.save();
+
+    // Populate response
+    const cancelledAppointment = await Appointment.findById(
+      appointment._id
+    )
+      .populate("patient", "name email phone")
+      .populate({
+        path: "doctor",
+        populate: {
+          path: "user",
+          select: "name email phone profileImage",
+        },
+      });
+
+    res.status(200).json({
+      message: "Appointment cancelled successfully",
+      appointment: cancelledAppointment,
+    });
+  } catch (error) {
+    console.error("Cancel appointment error:", error);
+
+    res.status(500).json({
+      message: "Failed to cancel appointment",
+    });
+  }
+};
+
+
+
 
 module.exports = {
   createAppointment,
@@ -597,5 +688,6 @@ module.exports = {
   getDoctorAppointments,
   getAdminAppointments,
   updateAppointmentStatus,
+  cancelAppointment,
 };
 

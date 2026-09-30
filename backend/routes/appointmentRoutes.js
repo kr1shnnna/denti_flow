@@ -8,6 +8,7 @@ const {
   getDoctorAppointments,
   getAdminAppointments,
   updateAppointmentStatus,
+  cancelAppointment,
 } = require("../controllers/appointmentController");
 
 const {
@@ -63,6 +64,13 @@ router.patch(
   updateAppointmentStatus
 );
 
+
+router.patch(
+  "/:id/cancel",
+  protect,
+  authorizeRoles("patient"),
+  cancelAppointment
+);
 
 
 
