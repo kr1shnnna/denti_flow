@@ -1,17 +1,18 @@
 const Appointment = require("../models/Appointment");
 
+
 const createAppointment = async (req, res) => {
   try {
-    const { patient, doctor, date, timeSlot, reason } = req.body;
+    const { doctor, date, timeSlot, reason } = req.body;
 
-    if (!patient || !doctor || !date || !timeSlot || !reason) {
+    if (!doctor || !date || !timeSlot || !reason) {
       return res.status(400).json({
-        message: "All appointment fields are required",
+        message: "Doctor, date, time slot and reason are required",
       });
     }
 
     const appointment = await Appointment.create({
-      patient,
+      patient: req.user._id,
       doctor,
       date,
       timeSlot,
@@ -30,6 +31,7 @@ const createAppointment = async (req, res) => {
     });
   }
 };
+
 
 const getAppointments = async (req, res) => {
   try {

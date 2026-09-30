@@ -5,10 +5,12 @@ const {
   getAppointments,
 } = require("../controllers/appointmentController");
 
+const { protect } = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
-router.post("/", createAppointment);
+router.post("/", protect, createAppointment);
 
-router.get("/", getAppointments);
+router.get("/", protect, getAppointments);
 
 module.exports = router;
