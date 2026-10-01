@@ -11,6 +11,7 @@ import About from "./pages/About";
 function App() {
   return (
     <Routes>
+      {/* Public pages */}
       <Route path="/" element={<Home />} />
 
       <Route path="/login" element={<Login />} />
@@ -20,6 +21,7 @@ function App() {
       <Route path="/doctors" element={<Doctors />} />
 
       <Route path="/services" element={<Services />} />
+
       <Route path="/about" element={<About />} />
     </Routes>
   );
