@@ -171,18 +171,6 @@ function Profile() {
                 </div>
               </Link>
             </div>
-
-            {/* Future editing area */}
-            <div className="mt-8 rounded-2xl border border-dashed border-slate-200 p-5">
-              <p className="text-sm font-medium text-slate-700">
-                Profile editing
-              </p>
-
-              <p className="mt-1 text-sm leading-6 text-slate-500">
-                Profile editing can be connected to the patient
-                update API once we wire the backend endpoint.
-              </p>
-            </div>
           </div>
         </div>
       </main>
