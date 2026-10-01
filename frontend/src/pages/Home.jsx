@@ -3,6 +3,8 @@ import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import WhyChoose from "../components/WhyChoose";
 import FeaturedDentists from "../components/FeaturedDentists";
+import HowItWorks from "../components/HowItWorks";
+import Footer from "../components/Footer";
 
 function Home() {
   return (
@@ -14,6 +16,10 @@ function Home() {
       <WhyChoose />
 
       <FeaturedDentists />
+
+      <HowItWorks />
+
+      <Footer />
     </main>
   );
 }
