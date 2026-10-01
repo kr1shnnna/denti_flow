@@ -1,11 +1,5 @@
 
 import {
-  Stethoscope,
-  Sparkles,
-  CircleDot,
-  Smile,
-  Gem,
-  Syringe,
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
@@ -17,7 +11,7 @@ import Footer from "../components/Footer";
 function Services() {
   const services = [
     {
-      icon: Stethoscope,
+      image: "/services/general-checkup.png",
       title: "General Checkup",
       description:
         "Regular dental examinations help identify potential problems early and keep your teeth and gums healthy.",
@@ -28,7 +22,7 @@ function Services() {
       ],
     },
     {
-      icon: Sparkles,
+      image: "/services/teeth-cleaning.png",
       title: "Teeth Cleaning",
       description:
         "Professional dental cleaning helps remove plaque and buildup while keeping your smile fresh and healthy.",
@@ -39,7 +33,7 @@ function Services() {
       ],
     },
     {
-      icon: CircleDot,
+      image: "/services/root-canal.png",
       title: "Root Canal Treatment",
       description:
         "Root canal treatment helps treat damaged or infected teeth and can help preserve your natural tooth.",
@@ -50,7 +44,7 @@ function Services() {
       ],
     },
     {
-      icon: Smile,
+      image: "/services/braces-aligners.png",
       title: "Braces & Aligners",
       description:
         "Orthodontic treatments help improve tooth alignment and create a healthier, more confident smile.",
@@ -61,7 +55,7 @@ function Services() {
       ],
     },
     {
-      icon: Gem,
+      image: "/services/cosmetic-dentistry.png",
       title: "Cosmetic Dentistry",
       description:
         "Cosmetic dental treatments focus on improving the appearance of your smile while maintaining natural results.",
@@ -72,7 +66,7 @@ function Services() {
       ],
     },
     {
-      icon: Syringe,
+      image: "/services/dental-procedures.png",
       title: "Dental Procedures",
       description:
         "Get professional dental care for a range of common procedures based on your individual needs.",
@@ -120,25 +114,26 @@ function Services() {
       <section className="px-6 py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => {
-              const Icon = service.icon;
+            {services.map((service) => (
+              <article
+                key={service.title}
+                className="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-100 hover:shadow-xl hover:shadow-slate-200/60"
+              >
+                {/* Image */}
+                <div className="h-56 overflow-hidden bg-slate-100">
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
 
-              return (
-                <article
-                  key={service.title}
-                  className="group rounded-2xl border border-slate-100 bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-teal-100 hover:shadow-xl hover:shadow-slate-200/60"
-                >
-                  {/* Icon */}
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 transition duration-300 group-hover:bg-teal-600 group-hover:text-white">
-                    <Icon size={27} strokeWidth={1.8} />
-                  </div>
-
-                  {/* Title */}
-                  <h2 className="mt-6 text-xl font-bold text-slate-900">
+                {/* Content */}
+                <div className="p-7">
+                  <h2 className="text-xl font-bold text-slate-900">
                     {service.title}
                   </h2>
 
-                  {/* Description */}
                   <p className="mt-3 text-sm leading-6 text-slate-500">
                     {service.description}
                   </p>
@@ -172,15 +167,15 @@ function Services() {
                       className="transition-transform group-hover/link:translate-x-1"
                     />
                   </Link>
-                </article>
-              );
-            })}
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
       {/* =========================
-          Bottom Information
+          Bottom CTA
       ========================= */}
       <section className="px-6 pb-20 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-3xl bg-teal-600 px-8 py-12 text-center sm:px-12">
@@ -199,7 +194,6 @@ function Services() {
             className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-teal-700 transition hover:bg-slate-50"
           >
             Find a Dentist
-
             <ArrowRight size={17} />
           </Link>
         </div>
