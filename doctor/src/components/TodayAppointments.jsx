@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Eye, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { getDoctorAppointments } from "../services/api";
 
 const TodayAppointments = () => {
@@ -120,12 +121,12 @@ const TodayAppointments = () => {
             </p>
           </div>
 
-          <button
-            type="button"
+          <Link
+            to="/appointments"
             className="text-sm font-medium text-teal-600 transition hover:text-teal-700"
           >
             View all
-          </button>
+          </Link>
         </div>
 
         {/* Loading */}

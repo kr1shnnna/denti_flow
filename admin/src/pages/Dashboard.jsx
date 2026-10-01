@@ -182,7 +182,7 @@ const Dashboard = () => {
       ========================== */}
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {/* Patients */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">
@@ -201,7 +201,7 @@ const Dashboard = () => {
         </div>
 
         {/* Doctors */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">
@@ -220,7 +220,7 @@ const Dashboard = () => {
         </div>
 
         {/* Today's appointments */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">
@@ -239,7 +239,7 @@ const Dashboard = () => {
         </div>
 
         {/* Pending */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">

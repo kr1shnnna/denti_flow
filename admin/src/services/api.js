@@ -111,4 +111,24 @@ export const updateDoctorAvailability = async (
 };
 
 
+// =========================
+// Update Appointment Status
+// =========================
+
+export const updateAppointmentStatus = async (appointmentId, status) => {
+  const token = localStorage.getItem("token");
+
+  const response = await api.patch(
+    `/appointments/${appointmentId}/status`,
+    { status },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
+
 export default api;

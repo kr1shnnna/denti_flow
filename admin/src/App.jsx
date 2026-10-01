@@ -5,15 +5,10 @@ import Login from "./pages/Login";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 import Doctors from "./pages/Doctors";
+import Appointments from "./pages/Appointments";
 
 
 
-
-const Appointments = () => (
-  <h2 className="text-2xl font-semibold text-slate-900">
-    Appointments
-  </h2>
-);
 
 
 
