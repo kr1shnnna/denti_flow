@@ -7,14 +7,11 @@ import Dashboard from "./pages/Dashboard";
 import Doctors from "./pages/Doctors";
 import Appointments from "./pages/Appointments";
 import Patients from "./pages/Patients";
+import Profile from "./pages/Profile";
 
 
 
-const Profile = () => (
-  <h2 className="text-2xl font-semibold text-slate-900">
-    Profile
-  </h2>
-);
+
 
 const ProtectedAdminRoute = () => {
   const token = localStorage.getItem("token");
