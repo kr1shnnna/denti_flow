@@ -6,23 +6,9 @@ import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/Dashboard";
 import Doctors from "./pages/Doctors";
 import Appointments from "./pages/Appointments";
+import Patients from "./pages/Patients";
 
 
-
-
-
-
-const Patients = () => (
-  <h2 className="text-2xl font-semibold text-slate-900">
-    Patients
-  </h2>
-);
-
-const Notifications = () => (
-  <h2 className="text-2xl font-semibold text-slate-900">
-    Notifications
-  </h2>
-);
 
 const Profile = () => (
   <h2 className="text-2xl font-semibold text-slate-900">
@@ -55,10 +41,6 @@ function App() {
         <Route path="/appointments" element={<Appointments />} />
         <Route path="/doctors" element={<Doctors />} />
         <Route path="/patients" element={<Patients />} />
-        <Route
-          path="/notifications"
-          element={<Notifications />}
-        />
         <Route path="/profile" element={<Profile />} />
       </Route>
 
