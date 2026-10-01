@@ -1,122 +1,92 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+
+import { Navigate, Route, Routes } from "react-router-dom";
+
+import Login from "./pages/Login";
+import AdminLayout from "./layouts/AdminLayout";
+
+const Dashboard = () => {
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold text-slate-900">
+        Dashboard
+      </h2>
+
+      <p className="mt-2 text-sm text-slate-500">
+        Welcome to the DentiFlow admin portal.
+      </p>
+    </div>
+  );
+};
+
+const Appointments = () => (
+  <h2 className="text-2xl font-semibold text-slate-900">
+    Appointments
+  </h2>
+);
+
+const Doctors = () => (
+  <h2 className="text-2xl font-semibold text-slate-900">
+    Doctors
+  </h2>
+);
+
+const Patients = () => (
+  <h2 className="text-2xl font-semibold text-slate-900">
+    Patients
+  </h2>
+);
+
+const Notifications = () => (
+  <h2 className="text-2xl font-semibold text-slate-900">
+    Notifications
+  </h2>
+);
+
+const Profile = () => (
+  <h2 className="text-2xl font-semibold text-slate-900">
+    Profile
+  </h2>
+);
+
+const ProtectedAdminRoute = () => {
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(
+    localStorage.getItem("user") || "null"
+  );
+
+  if (!token || user?.role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <AdminLayout />;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Routes>
+      {/* Public */}
+      <Route path="/login" element={<Login />} />
 
-      <div className="ticks"></div>
+      {/* Protected Admin Area */}
+      <Route element={<ProtectedAdminRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/appointments" element={<Appointments />} />
+        <Route path="/doctors" element={<Doctors />} />
+        <Route path="/patients" element={<Patients />} />
+        <Route
+          path="/notifications"
+          element={<Notifications />}
+        />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Fallback */}
+      <Route
+        path="*"
+        element={<Navigate to="/dashboard" replace />}
+      />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
