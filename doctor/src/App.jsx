@@ -13,6 +13,12 @@ import Appointments from "./pages/Appointments";
 import Patients from "./pages/Patients";
 import Availability from "./pages/Availability";
 
+import Profile from "./pages/Profile";
+
+
+
+
+
 // =========================
 // Dashboard
 // =========================
@@ -27,17 +33,7 @@ function Dashboard() {
   );
 }
 
-// =========================
-// Profile
-// =========================
 
-function Profile() {
-  return (
-    <h1 className="text-2xl font-semibold">
-      Profile
-    </h1>
-  );
-}
 
 // =========================
 // Doctor Layout
