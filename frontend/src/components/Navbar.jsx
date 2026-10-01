@@ -20,37 +20,46 @@ function Navbar() {
   const dropdownRef = useRef(null);
 
   // =========================
-  // Check logged-in user
+  // Load patient from storage
+  // =========================
+  const loadPatient = () => {
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (!token || !storedUser) {
+      setUser(null);
+      return;
+    }
+
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch (error) {
+      console.error("Invalid stored patient data:", error);
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      setUser(null);
+    }
+  };
+
+  // =========================
+  // Listen for login/logout
   // =========================
   useEffect(() => {
-    const loadUser = () => {
-      const storedUser = localStorage.getItem("user");
+    // Check when Navbar first loads
+    loadPatient();
 
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (error) {
-          console.error("Invalid user data:", error);
-          localStorage.removeItem("user");
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    };
-
-    loadUser();
-
-    // Update navbar when login/logout happens
-    window.addEventListener("auth-change", loadUser);
+    // Listen for authentication changes
+    window.addEventListener("auth-change", loadPatient);
 
     return () => {
-      window.removeEventListener("auth-change", loadUser);
+      window.removeEventListener("auth-change", loadPatient);
     };
   }, []);
 
   // =========================
-  // Close dropdown on outside click
+  // Close dropdown
   // =========================
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -83,29 +92,31 @@ function Navbar() {
     setIsDropdownOpen(false);
     setIsMobileMenuOpen(false);
 
+    // Tell Navbar/authenticated components
     window.dispatchEvent(new Event("auth-change"));
 
     navigate("/");
   };
 
   // =========================
-  // User information
+  // Patient information
   // =========================
-  const userName =
+  const patientName =
     user?.name ||
     user?.fullName ||
     user?.username ||
-    "User";
+    "Patient";
 
-  const userEmail = user?.email || "";
+  const patientEmail = user?.email || "";
 
-  const avatarLetter = userName
+  const avatarLetter = patientName
     .charAt(0)
     .toUpperCase();
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-slate-100 bg-white/95 backdrop-blur">
       <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
+
         {/* =========================
             Logo
         ========================= */}
@@ -115,9 +126,9 @@ function Navbar() {
           onClick={() => setIsMobileMenuOpen(false)}
         >
           <img
-            src="/logo/logo.png"
+            src="/logo/dentiflow-logo.png"
             alt="DentiFlow"
-            className="h-10 w-auto"
+            className="h-10 w-auto object-contain"
           />
         </Link>
 
@@ -144,6 +155,7 @@ function Navbar() {
             Desktop Actions
         ========================= */}
         <div className="hidden items-center gap-3 md:flex">
+
           {/* Book Appointment */}
           <Link
             to="/appointments"
@@ -152,6 +164,9 @@ function Navbar() {
             Book Appointment
           </Link>
 
+          {/* =========================
+              Logged Out
+          ========================= */}
           {!user ? (
             <>
               <Link
@@ -169,8 +184,9 @@ function Navbar() {
               </Link>
             </>
           ) : (
+
             /* =========================
-               Logged-in User Dropdown
+               Logged In Patient
             ========================= */
             <div
               ref={dropdownRef}
@@ -190,7 +206,7 @@ function Navbar() {
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
-                      alt={userName}
+                      alt={patientName}
                       className="h-full w-full object-cover"
                     />
                   ) : (
@@ -198,8 +214,9 @@ function Navbar() {
                   )}
                 </div>
 
+                {/* Patient name */}
                 <span className="max-w-28 truncate text-sm font-semibold text-slate-700">
-                  {userName}
+                  {patientName}
                 </span>
 
                 <ChevronDown
@@ -212,30 +229,37 @@ function Navbar() {
                 />
               </button>
 
-              {/* Dropdown */}
+              {/* =========================
+                  Patient Dropdown
+              ========================= */}
               {isDropdownOpen && (
                 <div className="absolute right-0 top-14 w-64 overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-200/60">
-                  {/* User Info */}
+
+                  {/* Patient Info */}
                   <div className="border-b border-slate-100 px-4 py-4">
                     <div className="flex items-center gap-3">
+
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">
                         {avatarLetter}
                       </div>
 
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-slate-900">
-                          {userName}
+                          {patientName}
                         </p>
 
                         <p className="truncate text-xs text-slate-500">
-                          {userEmail}
+                          {patientEmail}
                         </p>
                       </div>
+
                     </div>
                   </div>
 
-                  {/* Profile */}
+                  {/* Menu */}
                   <div className="p-2">
+
+                    {/* Profile */}
                     <Link
                       to="/profile"
                       onClick={() =>
@@ -266,6 +290,7 @@ function Navbar() {
 
                       <span>My Appointments</span>
                     </Link>
+
                   </div>
 
                   {/* Logout */}
@@ -280,6 +305,7 @@ function Navbar() {
                       <span>Logout</span>
                     </button>
                   </div>
+
                 </div>
               )}
             </div>
@@ -305,6 +331,7 @@ function Navbar() {
             <Menu size={24} />
           )}
         </button>
+
       </nav>
 
       {/* =========================
@@ -312,7 +339,9 @@ function Navbar() {
       ========================= */}
       {isMobileMenuOpen && (
         <div className="border-t border-slate-100 bg-white px-6 py-5 md:hidden">
+
           <div className="space-y-1">
+
             <MobileNavLink
               to="/"
               onClick={() =>
@@ -348,9 +377,12 @@ function Navbar() {
             >
               About
             </MobileNavLink>
+
           </div>
 
           <div className="mt-4 border-t border-slate-100 pt-4">
+
+            {/* Book Appointment */}
             <Link
               to="/appointments"
               onClick={() =>
@@ -361,8 +393,12 @@ function Navbar() {
               Book Appointment
             </Link>
 
+            {/* =========================
+                Mobile Logged Out
+            ========================= */}
             {!user ? (
               <div className="mt-3 grid grid-cols-2 gap-2">
+
                 <Link
                   to="/login"
                   onClick={() =>
@@ -382,26 +418,35 @@ function Navbar() {
                 >
                   Register
                 </Link>
+
               </div>
             ) : (
+
+              /* =========================
+                 Mobile Logged In Patient
+              ========================= */
               <div className="mt-4 rounded-2xl bg-slate-50 p-4">
+
                 <div className="flex items-center gap-3">
+
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">
                     {avatarLetter}
                   </div>
 
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-slate-900">
-                      {userName}
+                      {patientName}
                     </p>
 
                     <p className="truncate text-xs text-slate-500">
-                      {userEmail}
+                      {patientEmail}
                     </p>
                   </div>
+
                 </div>
 
                 <div className="mt-4 space-y-1">
+
                   <Link
                     to="/profile"
                     onClick={() =>
@@ -432,9 +477,12 @@ function Navbar() {
                     <LogOut size={17} />
                     Logout
                   </button>
+
                 </div>
+
               </div>
             )}
+
           </div>
         </div>
       )}
@@ -443,7 +491,7 @@ function Navbar() {
 }
 
 /* =========================
-   Desktop Nav Link
+   Desktop Navigation Link
 ========================= */
 
 function NavLink({ to, children }) {
@@ -458,7 +506,7 @@ function NavLink({ to, children }) {
 }
 
 /* =========================
-   Mobile Nav Link
+   Mobile Navigation Link
 ========================= */
 
 function MobileNavLink({
