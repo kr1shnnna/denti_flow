@@ -218,6 +218,98 @@ const getMyDoctorProfile = async (req, res) => {
 };
 
 
+const updateMyDoctorProfile = async (req, res) => {
+  try {
+    const {
+      name,
+      phone,
+      specialization,
+      qualification,
+      experience,
+      bio,
+      consultationFee,
+      services,
+    } = req.body;
+
+    // Find the logged-in doctor's profile
+    const doctor = await Doctor.findOne({
+      user: req.user._id,
+    });
+
+    if (!doctor) {
+      return res.status(404).json({
+        message: "Doctor profile not found",
+      });
+    }
+
+    // Update User fields
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (name !== undefined) {
+      user.name = name.trim();
+    }
+
+    if (phone !== undefined) {
+      user.phone = phone.trim();
+    }
+
+    await user.save();
+
+    // Update Doctor fields
+    if (specialization !== undefined) {
+      doctor.specialization = specialization.trim();
+    }
+
+    if (qualification !== undefined) {
+      doctor.qualification = qualification.trim();
+    }
+
+    if (experience !== undefined) {
+      doctor.experience = Number(experience);
+    }
+
+    if (bio !== undefined) {
+      doctor.bio = bio.trim();
+    }
+
+    if (consultationFee !== undefined) {
+      doctor.consultationFee = Number(consultationFee);
+    }
+
+    if (services !== undefined) {
+      doctor.services = Array.isArray(services)
+        ? services
+        : [];
+    }
+
+    await doctor.save();
+
+    // Return updated doctor with user information
+    const updatedDoctor = await Doctor.findById(doctor._id).populate(
+      "user",
+      "name email phone profileImage"
+    );
+
+    res.status(200).json({
+      message: "Doctor profile updated successfully",
+      doctor: updatedDoctor,
+    });
+  } catch (error) {
+    console.error("Update doctor profile error:", error);
+
+    res.status(500).json({
+      message: "Failed to update doctor profile",
+    });
+  }
+};
+
+
 
 const updateMyDoctorAvailability = async (req, res) => {
   try {
@@ -284,4 +376,5 @@ module.exports = {
   updateDoctorAvailability,
   getMyDoctorProfile,
   updateMyDoctorAvailability,
+  updateMyDoctorProfile, 
 };

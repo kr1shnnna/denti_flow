@@ -145,5 +145,27 @@ export const markAllNotificationsAsRead = async () => {
 };
 
 
+
+// =========================
+// Update logged-in doctor profile
+// =========================
+
+export const updateMyDoctorProfile = async (profileData) => {
+  const token = localStorage.getItem("token");
+
+  const response = await api.patch(
+    "/doctors/me",
+    profileData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
+
+
 export default api;
 

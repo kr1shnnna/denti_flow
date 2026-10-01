@@ -6,7 +6,8 @@ const {
   getDoctorById,
   updateDoctorAvailability,
   getMyDoctorProfile,
-  updateMyDoctorAvailability
+  updateMyDoctorAvailability,
+  updateMyDoctorProfile,
 } = require("../controllers/doctorController");
 
 const {
@@ -30,6 +31,13 @@ router.get(
   protect,
   authorizeRoles("doctor"),
   getMyDoctorProfile
+);
+
+router.patch(
+  "/me",
+  protect,
+  authorizeRoles("doctor"),
+  updateMyDoctorProfile
 );
 
 router.patch(

@@ -8,9 +8,11 @@ import {
   LogOut,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
   const menuItems = [
     {
       name: "Dashboard",
@@ -32,7 +34,6 @@ const Sidebar = () => {
       icon: Clock3,
       path: "/availability",
     },
-
     {
       name: "Profile",
       icon: UserCircle,
@@ -40,10 +41,18 @@ const Sidebar = () => {
     },
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+
+    navigate("/login", {
+      replace: true,
+    });
+  };
+
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-slate-200 bg-white">
-      
       {/* Logo */}
+
       <div className="flex h-20 items-center px-7">
         <img
           src="/logo/dentiflow-logo.png"
@@ -53,6 +62,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
+
       <nav className="flex-1 px-4 py-6">
         <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
           Menu
@@ -75,6 +85,7 @@ const Sidebar = () => {
                 }
               >
                 <Icon size={20} strokeWidth={1.8} />
+
                 <span>{item.name}</span>
               </NavLink>
             );
@@ -83,12 +94,15 @@ const Sidebar = () => {
       </nav>
 
       {/* Logout */}
+
       <div className="border-t border-slate-200 p-4">
         <button
           type="button"
+          onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
         >
           <LogOut size={20} strokeWidth={1.8} />
+
           <span>Logout</span>
         </button>
       </div>
@@ -97,4 +111,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
