@@ -4,7 +4,6 @@ import {
   CalendarDays,
   Users,
   Stethoscope,
-  Bell,
   UserCircle,
   LogOut,
 } from "lucide-react";
@@ -34,11 +33,6 @@ const AdminLayout = () => {
       name: "Patients",
       icon: Users,
       path: "/patients",
-    },
-    {
-      name: "Notifications",
-      icon: Bell,
-      path: "/notifications",
     },
     {
       name: "Profile",
@@ -131,21 +125,6 @@ const AdminLayout = () => {
 
           {/* Right */}
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            <button
-              type="button"
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
-              aria-label="Notifications"
-            >
-              <Bell size={19} strokeWidth={1.8} />
-
-              {/* Temporary unread indicator */}
-              <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-teal-500 ring-2 ring-white" />
-            </button>
-
-            {/* Divider */}
-            <div className="h-9 w-px bg-slate-200" />
-
             {/* Admin */}
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700">

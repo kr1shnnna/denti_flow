@@ -3,20 +3,11 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import Login from "./pages/Login";
 import AdminLayout from "./layouts/AdminLayout";
+import Dashboard from "./pages/Dashboard";
+import Doctors from "./pages/Doctors";
 
-const Dashboard = () => {
-  return (
-    <div>
-      <h2 className="text-2xl font-semibold text-slate-900">
-        Dashboard
-      </h2>
 
-      <p className="mt-2 text-sm text-slate-500">
-        Welcome to the DentiFlow admin portal.
-      </p>
-    </div>
-  );
-};
+
 
 const Appointments = () => (
   <h2 className="text-2xl font-semibold text-slate-900">
@@ -24,11 +15,7 @@ const Appointments = () => (
   </h2>
 );
 
-const Doctors = () => (
-  <h2 className="text-2xl font-semibold text-slate-900">
-    Doctors
-  </h2>
-);
+
 
 const Patients = () => (
   <h2 className="text-2xl font-semibold text-slate-900">
