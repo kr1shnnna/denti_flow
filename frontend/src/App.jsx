@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
@@ -12,6 +11,7 @@ import Profile from "./pages/Profile";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import AppointmentBooking from "./pages/AppointmentBooking";
 function App() {
   return (
     <Routes>
@@ -34,15 +34,11 @@ function App() {
           Patient Protected Routes
       ========================= */}
       <Route element={<ProtectedRoute />}>
-        <Route
-          path="/appointments"
-          element={<Appointments />}
-        />
+        <Route path="/appointments" element={<Appointments />} />
 
-        <Route
-          path="/profile"
-          element={<Profile />}
-        />
+        <Route path="/appointments/book" element={<AppointmentBooking />} />
+
+        <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>
   );
