@@ -1,17 +1,13 @@
-
 import { useEffect, useState } from "react";
-import {
-  CalendarDays,
-  Clock,
-  UserRound,
-  MapPin,
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CalendarDays, Clock, UserRound, MapPin } from "lucide-react";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 function Appointments() {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -26,10 +22,7 @@ function Appointments() {
   }, []);
 
   const patientName =
-    user?.name ||
-    user?.fullName ||
-    user?.username ||
-    "Patient";
+    user?.name || user?.fullName || user?.username || "Patient";
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -38,17 +31,15 @@ function Appointments() {
       <main className="mx-auto max-w-6xl px-6 pb-16 pt-32 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <p className="text-sm font-semibold text-teal-600">
-            DentiFlow
-          </p>
+          <p className="text-sm font-semibold text-teal-600">DentiFlow</p>
 
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
             My Appointments
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Welcome back, {patientName}. Manage your dental
-            appointments from here.
+            Welcome back, {patientName}. Manage your dental appointments from
+            here.
           </p>
         </div>
 
@@ -64,14 +55,16 @@ function Appointments() {
             </h2>
 
             <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Choose a dentist, select a dental service and
-              available time, then confirm your appointment.
+              Choose a dentist, select a dental service and available time, then
+              confirm your appointment.
             </p>
 
             {/* This button will be connected to the actual
                 doctor/service/time selection flow next */}
+
             <button
               type="button"
+              onClick={() => navigate("/appointments/book")}
               className="mt-6 rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
             >
               Start Booking
@@ -113,13 +106,9 @@ function InfoCard({ icon, title, description }) {
         {icon}
       </div>
 
-      <h3 className="mt-4 text-sm font-semibold text-slate-900">
-        {title}
-      </h3>
+      <h3 className="mt-4 text-sm font-semibold text-slate-900">{title}</h3>
 
-      <p className="mt-1 text-sm leading-6 text-slate-500">
-        {description}
-      </p>
+      <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
     </div>
   );
 }
