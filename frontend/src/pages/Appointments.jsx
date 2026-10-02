@@ -155,6 +155,11 @@ function Appointments() {
       (appointment) => !isUpcoming(appointment)
     );
 
+  // A patient is considered returning after
+  // they have at least one appointment.
+  const isReturningPatient =
+    appointments.length > 0;
+
   // =========================
   // Formatting
   // =========================
@@ -329,17 +334,16 @@ function Appointments() {
     );
   }
 
-  // =========================
-  // Main UI
-  // =========================
-
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
 
       <main className="mx-auto max-w-6xl px-6 pb-20 pt-32 lg:px-8">
 
-        {/* Header */}
+        {/* =========================
+            Header
+        ========================= */}
+
         <div className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <p className="text-sm font-semibold text-teal-600">
@@ -356,19 +360,25 @@ function Appointments() {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() =>
-              navigate("/appointments/book")
-            }
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
-          >
-            <CalendarPlus size={17} />
-            Book Appointment
-          </button>
+          {/* Returning patient gets only this booking button */}
+          {isReturningPatient && (
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/appointments/book")
+              }
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
+            >
+              <CalendarPlus size={17} />
+              Book Appointment
+            </button>
+          )}
         </div>
 
-        {/* General error */}
+        {/* =========================
+            Error
+        ========================= */}
+
         {error && (
           <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-600">
             <AlertCircle
@@ -381,9 +391,7 @@ function Appointments() {
                 Something went wrong
               </p>
 
-              <p className="mt-1">
-                {error}
-              </p>
+              <p className="mt-1">{error}</p>
 
               <button
                 type="button"
@@ -396,26 +404,27 @@ function Appointments() {
           </div>
         )}
 
-        {/* =========================
-            No appointments
-        ========================= */}
+        {/* =================================================
+            NEW PATIENT
+            No appointment history at all
+        ================================================= */}
 
-        {!error &&
-          appointments.length === 0 && (
-            <section className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm sm:p-12">
-              <div className="flex flex-col items-center justify-center text-center">
+        {!isReturningPatient && !error && (
+          <>
+            <section className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8">
+              <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-600">
                   <CalendarDays size={30} />
                 </div>
 
                 <h2 className="mt-5 text-xl font-semibold text-slate-900">
-                  No appointments yet
+                  Book Your First Appointment
                 </h2>
 
                 <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-                  You haven't booked an appointment yet.
-                  Choose a dentist, select a service and
-                  available time, then confirm your visit.
+                  Choose a dentist, select a dental service
+                  and available time, then confirm your
+                  appointment.
                 </p>
 
                 <button
@@ -425,72 +434,97 @@ function Appointments() {
                   }
                   className="mt-6 rounded-xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
                 >
-                  Book Your First Appointment
+                  Start Booking
                 </button>
+              </div>
+            </section>
+
+            {/* Onboarding cards only for new patients */}
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <InfoCard
+                icon={<UserRound size={19} />}
+                title="Choose Dentist"
+                description="Select the dentist you want to visit."
+              />
+
+              <InfoCard
+                icon={<Clock size={19} />}
+                title="Select Time"
+                description="Choose an available appointment slot."
+              />
+
+              <InfoCard
+                icon={<MapPin size={19} />}
+                title="Visit Clinic"
+                description="Arrive at the clinic for your appointment."
+              />
+            </div>
+          </>
+        )}
+
+        {/* =================================================
+            RETURNING PATIENT
+            Upcoming appointments
+        ================================================= */}
+
+        {isReturningPatient &&
+          upcomingAppointments.length > 0 && (
+            <section>
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+                  <CalendarDays size={19} />
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900">
+                    Upcoming Appointments
+                  </h2>
+
+                  <p className="text-sm text-slate-500">
+                    Your scheduled dental visits.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {upcomingAppointments.map(
+                  (appointment) => (
+                    <AppointmentCard
+                      key={
+                        appointment._id ||
+                        appointment.id
+                      }
+                      appointment={appointment}
+                      upcoming
+                      getDoctorName={getDoctorName}
+                      getDoctorSpecialization={
+                        getDoctorSpecialization
+                      }
+                      getDoctorImage={getDoctorImage}
+                      formatDate={formatDate}
+                      formatTime={formatTime}
+                      getStatusClasses={
+                        getStatusClasses
+                      }
+                      formatStatus={formatStatus}
+                      onCancel={() =>
+                        setAppointmentToCancel(
+                          appointment
+                        )
+                      }
+                    />
+                  )
+                )}
               </div>
             </section>
           )}
 
-        {/* =========================
-            Upcoming
-        ========================= */}
+        {/* =================================================
+            RETURNING PATIENT
+            No upcoming appointments
+        ================================================= */}
 
-        {upcomingAppointments.length > 0 && (
-          <section>
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
-                <CalendarDays size={19} />
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">
-                  Upcoming Appointments
-                </h2>
-
-                <p className="text-sm text-slate-500">
-                  Your scheduled dental visits.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {upcomingAppointments.map(
-                (appointment) => (
-                  <AppointmentCard
-                    key={
-                      appointment._id ||
-                      appointment.id
-                    }
-                    appointment={appointment}
-                    upcoming
-                    getDoctorName={getDoctorName}
-                    getDoctorSpecialization={
-                      getDoctorSpecialization
-                    }
-                    getDoctorImage={getDoctorImage}
-                    formatDate={formatDate}
-                    formatTime={formatTime}
-                    getStatusClasses={
-                      getStatusClasses
-                    }
-                    formatStatus={formatStatus}
-                    onCancel={() =>
-                      setAppointmentToCancel(
-                        appointment
-                      )
-                    }
-                  />
-                )
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* =========================
-            No upcoming
-        ========================= */}
-
-        {appointments.length > 0 &&
+        {isReturningPatient &&
           upcomingAppointments.length === 0 && (
             <section className="rounded-3xl border border-slate-100 bg-white p-7 shadow-sm">
               <div className="flex flex-col items-center text-center">
@@ -506,99 +540,66 @@ function Appointments() {
                   You don't currently have an upcoming
                   appointment.
                 </p>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate("/appointments/book")
-                  }
-                  className="mt-5 rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700"
-                >
-                  Book an Appointment
-                </button>
               </div>
             </section>
           )}
 
-        {/* =========================
-            History
-        ========================= */}
+        {/* =================================================
+            APPOINTMENT HISTORY
+        ================================================= */}
 
-        {appointmentHistory.length > 0 && (
-          <section className="mt-12">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
-                <History size={19} />
+        {isReturningPatient &&
+          appointmentHistory.length > 0 && (
+            <section className="mt-12">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                  <History size={19} />
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900">
+                    Appointment History
+                  </h2>
+
+                  <p className="text-sm text-slate-500">
+                    Your previous and cancelled appointments.
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">
-                  Appointment History
-                </h2>
-
-                <p className="text-sm text-slate-500">
-                  Your previous and cancelled appointments.
-                </p>
+              <div className="space-y-4">
+                {appointmentHistory.map(
+                  (appointment) => (
+                    <AppointmentCard
+                      key={
+                        appointment._id ||
+                        appointment.id
+                      }
+                      appointment={appointment}
+                      upcoming={false}
+                      getDoctorName={getDoctorName}
+                      getDoctorSpecialization={
+                        getDoctorSpecialization
+                      }
+                      getDoctorImage={getDoctorImage}
+                      formatDate={formatDate}
+                      formatTime={formatTime}
+                      getStatusClasses={
+                        getStatusClasses
+                      }
+                      formatStatus={formatStatus}
+                    />
+                  )
+                )}
               </div>
-            </div>
-
-            <div className="space-y-4">
-              {appointmentHistory.map(
-                (appointment) => (
-                  <AppointmentCard
-                    key={
-                      appointment._id ||
-                      appointment.id
-                    }
-                    appointment={appointment}
-                    upcoming={false}
-                    getDoctorName={getDoctorName}
-                    getDoctorSpecialization={
-                      getDoctorSpecialization
-                    }
-                    getDoctorImage={getDoctorImage}
-                    formatDate={formatDate}
-                    formatTime={formatTime}
-                    getStatusClasses={
-                      getStatusClasses
-                    }
-                    formatStatus={formatStatus}
-                  />
-                )
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* =========================
-            Info cards
-        ========================= */}
-
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          <InfoCard
-            icon={<UserRound size={19} />}
-            title="Choose Dentist"
-            description="Select the dentist you want to visit."
-          />
-
-          <InfoCard
-            icon={<Clock size={19} />}
-            title="Select Time"
-            description="Choose an available appointment slot."
-          />
-
-          <InfoCard
-            icon={<MapPin size={19} />}
-            title="Visit Clinic"
-            description="Arrive at the clinic for your appointment."
-          />
-        </div>
+            </section>
+          )}
       </main>
 
       <Footer />
 
       {/* =========================
-          Cancel Modal
+          Cancel Confirmation Modal
       ========================= */}
 
       {appointmentToCancel && (
@@ -826,7 +827,7 @@ function AppointmentCard({
 }
 
 // ======================================================
-// Info Card
+// New Patient Info Card
 // ======================================================
 
 function InfoCard({
