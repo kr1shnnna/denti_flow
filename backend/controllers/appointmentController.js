@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Appointment = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
 const createNotification = require("../utils/createNotification");
+const { getIO } = require("../utils/socket");
 
 // Create appointment
 const createAppointment = async (req, res) => {
@@ -547,13 +548,23 @@ const updateAppointmentStatus = async (req, res) => {
     await appointment.save();
 
     if (status === "confirmed") {
-      await createNotification({
+      const notification = await createNotification({
         recipient: appointment.patient,
         type: "appointment_confirmed",
         title: "Appointment Confirmed",
         message: `Your appointment for ${appointment.timeSlot} has been confirmed.`,
         appointment: appointment._id,
       });
+
+      // Send real-time notification to the patient
+      if (notification) {
+        const io = getIO();
+
+        io.to(appointment.patient.toString()).emit(
+          "appointment_notification",
+          notification,
+        );
+      }
     }
 
     // Populate response
