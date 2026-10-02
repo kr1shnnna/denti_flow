@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -8,6 +7,7 @@ import {
   CheckCircle2,
   ArrowLeft,
   Loader2,
+  FileText,
 } from "lucide-react";
 
 import Navbar from "../components/Navbar";
@@ -38,6 +38,8 @@ function AppointmentBooking() {
   const [selectedDate, setSelectedDate] = useState("");
 
   const [selectedTime, setSelectedTime] = useState("");
+
+  const [reason, setReason] = useState("");
 
   const [availableSlots, setAvailableSlots] = useState([]);
 
@@ -81,12 +83,6 @@ function AppointmentBooking() {
 
         const data = await getDoctors();
 
-        /*
-          Depending on your backend response,
-          doctors may be returned directly or
-          inside a "doctors" property.
-        */
-
         const doctorList = Array.isArray(data)
           ? data
           : data.doctors || [];
@@ -129,13 +125,9 @@ function AppointmentBooking() {
           selectedDate
         );
 
-        /*
-          Handle common backend response formats.
-        */
-
         const slots = Array.isArray(data)
           ? data
-          : data.slots || data.availableSlots || [];
+          : data.availableSlots || [];
 
         setAvailableSlots(slots);
       } catch (err) {
@@ -189,10 +181,11 @@ function AppointmentBooking() {
       !selectedDoctor ||
       !selectedService ||
       !selectedDate ||
-      !selectedTime
+      !selectedTime ||
+      !reason.trim()
     ) {
       setError(
-        "Please select a dentist, service, date, and time."
+        "Please select a dentist, service, date, time, and enter a reason for your appointment."
       );
       return;
     }
@@ -203,9 +196,9 @@ function AppointmentBooking() {
 
       const appointmentData = {
         doctor: selectedDoctor,
-        service: selectedService,
         date: selectedDate,
-        time: selectedTime,
+        timeSlot: selectedTime,
+        reason: reason.trim(),
       };
 
       await createAppointment(appointmentData);
@@ -306,8 +299,8 @@ function AppointmentBooking() {
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Choose your dentist, service, date, and available
-            time.
+            Choose your dentist, service, date, available
+            time, and tell us the reason for your visit.
           </p>
         </div>
 
@@ -554,13 +547,6 @@ function AppointmentBooking() {
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {availableSlots.map((slot) => {
-                    /*
-                      Supports either:
-                      "10:00"
-                      or
-                      { time: "10:00" }
-                    */
-
                     const time =
                       typeof slot === "string"
                         ? slot
@@ -589,6 +575,52 @@ function AppointmentBooking() {
                   })}
                 </div>
               )}
+            </div>
+          </section>
+
+          <div className="my-8 border-t border-slate-100" />
+
+          {/* =========================
+              Step 5 — Reason
+          ========================= */}
+
+          <section>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+                <FileText size={19} />
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
+                  Step 5
+                </p>
+
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Reason for Your Visit
+                </h2>
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <textarea
+                value={reason}
+                onChange={(event) => {
+                  setReason(event.target.value);
+                  setError("");
+                }}
+                placeholder="Briefly describe why you are booking this appointment..."
+                rows={4}
+                maxLength={500}
+                className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+              />
+
+              <div className="mt-2 flex justify-between text-xs text-slate-400">
+                <span>
+                  This helps the dentist understand your visit.
+                </span>
+
+                <span>{reason.length}/500</span>
+              </div>
             </div>
           </section>
 
