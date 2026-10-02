@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -24,21 +25,20 @@ function AppointmentBooking() {
   const [searchParams] = useSearchParams();
 
   // =========================
-  // Data
+  // Dedicated doctor booking
   // =========================
+
+  const doctorFromUrl = searchParams.get("doctor");
 
   const [doctors, setDoctors] = useState([]);
 
   const [selectedDoctor, setSelectedDoctor] = useState(
-    searchParams.get("doctor") || ""
+    doctorFromUrl || ""
   );
 
   const [selectedService, setSelectedService] = useState("");
-
   const [selectedDate, setSelectedDate] = useState("");
-
   const [selectedTime, setSelectedTime] = useState("");
-
   const [reason, setReason] = useState("");
 
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -88,6 +88,20 @@ function AppointmentBooking() {
           : data.doctors || [];
 
         setDoctors(doctorList);
+
+        // If a doctor was passed through URL,
+        // make sure that doctor actually exists.
+        if (doctorFromUrl) {
+          const doctorExists = doctorList.some(
+            (doctor) =>
+              (doctor._id || doctor.id) === doctorFromUrl
+          );
+
+          if (!doctorExists) {
+            setError("The selected doctor could not be found.");
+            setSelectedDoctor("");
+          }
+        }
       } catch (err) {
         console.error("Failed to load doctors:", err);
 
@@ -101,7 +115,18 @@ function AppointmentBooking() {
     };
 
     fetchDoctors();
-  }, []);
+  }, [doctorFromUrl]);
+
+  // =========================
+  // Find selected doctor
+  // =========================
+
+  const selectedDoctorData = doctors.find(
+    (doctor) =>
+      (doctor._id || doctor.id) === selectedDoctor
+  );
+
+  const isDedicatedBooking = Boolean(doctorFromUrl);
 
   // =========================
   // Fetch available slots
@@ -295,12 +320,15 @@ function AppointmentBooking() {
           </p>
 
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Book an Appointment
+            {isDedicatedBooking
+              ? "Book an Appointment"
+              : "Book an Appointment"}
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Choose your dentist, service, date, available
-            time, and tell us the reason for your visit.
+            {isDedicatedBooking
+              ? "Complete your appointment details with your selected dentist."
+              : "Choose your dentist, service, date, available time, and tell us the reason for your visit."}
           </p>
         </div>
 
@@ -315,103 +343,165 @@ function AppointmentBooking() {
         <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8">
 
           {/* =========================
-              Step 1 — Dentist
+              Doctor Selection
           ========================= */}
 
-          <section>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
-                <UserRound size={19} />
-              </div>
+          {!isDedicatedBooking ? (
+            <>
+              <section>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+                    <UserRound size={19} />
+                  </div>
 
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
-                  Step 1
-                </p>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
+                      Step 1
+                    </p>
 
-                <h2 className="text-lg font-semibold text-slate-900">
-                  Choose Your Dentist
-                </h2>
-              </div>
-            </div>
-
-            <div className="mt-5">
-              {loadingDoctors ? (
-                <div className="flex items-center justify-center py-10">
-                  <Loader2
-                    size={24}
-                    className="animate-spin text-teal-600"
-                  />
+                    <h2 className="text-lg font-semibold text-slate-900">
+                      Choose Your Dentist
+                    </h2>
+                  </div>
                 </div>
-              ) : doctors.length === 0 ? (
-                <div className="rounded-2xl bg-slate-50 p-6 text-center">
-                  <p className="text-sm text-slate-500">
-                    No doctors are currently available.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {doctors.map((doctor) => {
-                    const doctorId =
-                      doctor._id || doctor.id;
 
-                    const isSelected =
-                      selectedDoctor === doctorId;
+                <div className="mt-5">
+                  {loadingDoctors ? (
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2
+                        size={24}
+                        className="animate-spin text-teal-600"
+                      />
+                    </div>
+                  ) : doctors.length === 0 ? (
+                    <div className="rounded-2xl bg-slate-50 p-6 text-center">
+                      <p className="text-sm text-slate-500">
+                        No doctors are currently available.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {doctors.map((doctor) => {
+                        const doctorId =
+                          doctor._id || doctor.id;
 
-                    return (
-                      <button
-                        key={doctorId}
-                        type="button"
-                        onClick={() =>
-                          handleDoctorChange(doctorId)
-                        }
-                        className={`flex items-center gap-4 rounded-2xl border p-4 text-left transition ${
-                          isSelected
-                            ? "border-teal-500 bg-teal-50 ring-2 ring-teal-500/10"
-                            : "border-slate-100 bg-white hover:border-teal-200 hover:bg-slate-50"
-                        }`}
-                      >
-                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
-                          {doctor.image ? (
-                            <img
-                              src={
-                                doctor.image.startsWith(
-                                  "http"
-                                )
-                                  ? doctor.image
-                                  : `http://localhost:5000${doctor.image}`
-                              }
-                              alt={doctor.name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-slate-400">
-                              <UserRound size={24} />
+                        const isSelected =
+                          selectedDoctor === doctorId;
+
+                        return (
+                          <button
+                            key={doctorId}
+                            type="button"
+                            onClick={() =>
+                              handleDoctorChange(doctorId)
+                            }
+                            className={`flex items-center gap-4 rounded-2xl border p-4 text-left transition ${
+                              isSelected
+                                ? "border-teal-500 bg-teal-50 ring-2 ring-teal-500/10"
+                                : "border-slate-100 bg-white hover:border-teal-200 hover:bg-slate-50"
+                            }`}
+                          >
+                            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                              {doctor.image ? (
+                                <img
+                                  src={
+                                    doctor.image.startsWith(
+                                      "http"
+                                    )
+                                      ? doctor.image
+                                      : `http://localhost:5000${doctor.image}`
+                                  }
+                                  alt={doctor.name}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-slate-400">
+                                  <UserRound size={24} />
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-slate-900">
-                            {doctor.name}
-                          </p>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-slate-900">
+                                {doctor.name}
+                              </p>
 
-                          <p className="mt-1 text-xs text-teal-600">
-                            {doctor.specialization}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
+                              <p className="mt-1 text-xs text-teal-600">
+                                {doctor.specialization}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </section>
+              </section>
 
-          <div className="my-8 border-t border-slate-100" />
+              <div className="my-8 border-t border-slate-100" />
+            </>
+          ) : (
+            <>
+              {/* Dedicated doctor */}
+              <section>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
+                    <UserRound size={19} />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
+                      Selected Dentist
+                    </p>
+
+                    <h2 className="text-lg font-semibold text-slate-900">
+                      {loadingDoctors
+                        ? "Loading dentist..."
+                        : selectedDoctorData?.name ||
+                          "Selected Dentist"}
+                    </h2>
+
+                    {selectedDoctorData?.specialization && (
+                      <p className="mt-1 text-sm text-teal-600">
+                        {selectedDoctorData.specialization}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {selectedDoctorData?.image && (
+                  <div className="mt-5 flex items-center gap-4 rounded-2xl bg-slate-50 p-4">
+                    <img
+                      src={
+                        selectedDoctorData.image.startsWith(
+                          "http"
+                        )
+                          ? selectedDoctorData.image
+                          : `http://localhost:5000${selectedDoctorData.image}`
+                      }
+                      alt={selectedDoctorData.name}
+                      className="h-16 w-16 rounded-xl object-cover"
+                    />
+
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {selectedDoctorData.name}
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        Your appointment will be booked with this dentist.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              <div className="my-8 border-t border-slate-100" />
+            </>
+          )}
 
           {/* =========================
-              Step 2 — Service
+              Service
           ========================= */}
 
           <section>
@@ -422,7 +512,7 @@ function AppointmentBooking() {
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
-                  Step 2
+                  {isDedicatedBooking ? "Step 1" : "Step 2"}
                 </p>
 
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -460,7 +550,7 @@ function AppointmentBooking() {
           <div className="my-8 border-t border-slate-100" />
 
           {/* =========================
-              Step 3 — Date
+              Date
           ========================= */}
 
           <section>
@@ -471,7 +561,7 @@ function AppointmentBooking() {
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
-                  Step 3
+                  {isDedicatedBooking ? "Step 2" : "Step 3"}
                 </p>
 
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -505,7 +595,7 @@ function AppointmentBooking() {
           <div className="my-8 border-t border-slate-100" />
 
           {/* =========================
-              Step 4 — Time
+              Time
           ========================= */}
 
           <section>
@@ -516,7 +606,7 @@ function AppointmentBooking() {
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
-                  Step 4
+                  {isDedicatedBooking ? "Step 3" : "Step 4"}
                 </p>
 
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -581,7 +671,7 @@ function AppointmentBooking() {
           <div className="my-8 border-t border-slate-100" />
 
           {/* =========================
-              Step 5 — Reason
+              Reason
           ========================= */}
 
           <section>
@@ -592,7 +682,7 @@ function AppointmentBooking() {
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
-                  Step 5
+                  {isDedicatedBooking ? "Step 4" : "Step 5"}
                 </p>
 
                 <h2 className="text-lg font-semibold text-slate-900">

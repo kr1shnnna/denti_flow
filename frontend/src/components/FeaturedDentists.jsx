@@ -185,7 +185,7 @@ function DoctorCard({ doctor }) {
           </Link>
 
           <Link
-            to={`/doctors/${doctor._id}`}
+            to={`/appointments/book?doctor=${doctor._id}`}
             className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-teal-600 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-teal-700"
           >
             <CalendarDays size={14} />

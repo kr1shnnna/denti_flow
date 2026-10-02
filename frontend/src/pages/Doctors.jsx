@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import {
   Search,
@@ -35,8 +34,7 @@ function Doctors() {
         console.error("Failed to fetch doctors:", err);
 
         setError(
-          err.response?.data?.message ||
-            "Unable to load doctors right now."
+          err.response?.data?.message || "Unable to load doctors right now.",
         );
       } finally {
         setLoading(false);
@@ -60,20 +58,14 @@ function Doctors() {
     const searchValue = search.trim().toLowerCase();
 
     return doctors.filter((doctor) => {
-      const doctorName =
-        doctor.user?.name ||
-        doctor.name ||
-        "";
+      const doctorName = doctor.user?.name || doctor.name || "";
 
       const matchesSearch =
         doctorName.toLowerCase().includes(searchValue) ||
-        doctor.specialization
-          ?.toLowerCase()
-          .includes(searchValue);
+        doctor.specialization?.toLowerCase().includes(searchValue);
 
       const matchesSpecialization =
-        specialization === "All" ||
-        doctor.specialization === specialization;
+        specialization === "All" || doctor.specialization === specialization;
 
       return matchesSearch && matchesSpecialization;
     });
@@ -95,15 +87,12 @@ function Doctors() {
 
             <h1 className="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
               Find the right
-              <span className="text-teal-600">
-                {" "}dentist for you.
-              </span>
+              <span className="text-teal-600"> dentist for you.</span>
             </h1>
 
             <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-500">
-              Explore our experienced dental professionals,
-              find a specialist that matches your needs, and
-              book your appointment with ease.
+              Explore our experienced dental professionals, find a specialist
+              that matches your needs, and book your appointment with ease.
             </p>
           </div>
 
@@ -137,16 +126,12 @@ function Doctors() {
 
                 <select
                   value={specialization}
-                  onChange={(e) =>
-                    setSpecialization(e.target.value)
-                  }
+                  onChange={(e) => setSpecialization(e.target.value)}
                   className="h-12 w-full appearance-none rounded-xl bg-slate-50 pl-11 pr-4 text-sm text-slate-700 outline-none focus:bg-slate-100"
                 >
                   {specializations.map((item) => (
                     <option key={item} value={item}>
-                      {item === "All"
-                        ? "All Specializations"
-                        : item}
+                      {item === "All" ? "All Specializations" : item}
                     </option>
                   ))}
                 </select>
@@ -169,9 +154,7 @@ function Doctors() {
                 <span className="font-semibold text-slate-700">
                   {filteredDoctors.length}
                 </span>{" "}
-                {filteredDoctors.length === 1
-                  ? "dentist"
-                  : "dentists"}
+                {filteredDoctors.length === 1 ? "dentist" : "dentists"}
               </p>
             </div>
           )}
@@ -179,11 +162,9 @@ function Doctors() {
           {/* Loading */}
           {loading && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(
-                (item) => (
-                  <DoctorSkeleton key={item} />
-                )
-              )}
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                <DoctorSkeleton key={item} />
+              ))}
             </div>
           )}
 
@@ -191,10 +172,7 @@ function Doctors() {
           {!loading && error && (
             <div className="rounded-2xl border border-red-100 bg-white p-10 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
-                <Stethoscope
-                  size={25}
-                  className="text-red-500"
-                />
+                <Stethoscope size={25} className="text-red-500" />
               </div>
 
               <h2 className="mt-5 text-lg font-semibold text-slate-900">
@@ -208,52 +186,42 @@ function Doctors() {
           )}
 
           {/* Empty */}
-          {!loading &&
-            !error &&
-            filteredDoctors.length === 0 && (
-              <div className="rounded-2xl border border-slate-100 bg-white p-12 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-teal-50">
-                  <Search
-                    size={24}
-                    className="text-teal-600"
-                  />
-                </div>
-
-                <h2 className="mt-5 text-lg font-semibold text-slate-900">
-                  No dentists found
-                </h2>
-
-                <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-                  Try changing your search or selecting a
-                  different specialization.
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setSpecialization("All");
-                  }}
-                  className="mt-5 rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700"
-                >
-                  Clear Filters
-                </button>
+          {!loading && !error && filteredDoctors.length === 0 && (
+            <div className="rounded-2xl border border-slate-100 bg-white p-12 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-teal-50">
+                <Search size={24} className="text-teal-600" />
               </div>
-            )}
+
+              <h2 className="mt-5 text-lg font-semibold text-slate-900">
+                No dentists found
+              </h2>
+
+              <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
+                Try changing your search or selecting a different
+                specialization.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setSpecialization("All");
+                }}
+                className="mt-5 rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
 
           {/* Doctors */}
-          {!loading &&
-            !error &&
-            filteredDoctors.length > 0 && (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredDoctors.map((doctor) => (
-                  <DoctorCard
-                    key={doctor._id}
-                    doctor={doctor}
-                  />
-                ))}
-              </div>
-            )}
+          {!loading && !error && filteredDoctors.length > 0 && (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredDoctors.map((doctor) => (
+                <DoctorCard key={doctor._id} doctor={doctor} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -267,24 +235,17 @@ function Doctors() {
 ========================= */
 
 function DoctorCard({ doctor }) {
-  const doctorName =
-    doctor.user?.name ||
-    doctor.name ||
-    "Dental Specialist";
+  const doctorName = doctor.user?.name || doctor.name || "Dental Specialist";
 
   const image = doctor.image
     ? `http://localhost:5000${doctor.image}`
     : "/doctor-placeholder.png";
 
-  const specialization =
-    doctor.specialization ||
-    "General Dentist";
+  const specialization = doctor.specialization || "General Dentist";
 
-  const experience =
-    doctor.experience ?? 0;
+  const experience = doctor.experience ?? 0;
 
-  const consultationFee =
-    doctor.consultationFee ?? 0;
+  const consultationFee = doctor.consultationFee ?? 0;
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
@@ -295,8 +256,7 @@ function DoctorCard({ doctor }) {
           alt={doctorName}
           className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105"
           onError={(e) => {
-            e.currentTarget.src =
-              "/doctor-placeholder.png";
+            e.currentTarget.src = "/doctor-placeholder.png";
           }}
         />
 
@@ -313,41 +273,26 @@ function DoctorCard({ doctor }) {
           {specialization}
         </p>
 
-        <h2 className="mt-1 text-lg font-bold text-slate-900">
-          {doctorName}
-        </h2>
+        <h2 className="mt-1 text-lg font-bold text-slate-900">{doctorName}</h2>
 
         <p className="mt-1 text-sm text-slate-500">
-          {doctor.qualification ||
-            "Dental Professional"}
+          {doctor.qualification || "Dental Professional"}
         </p>
 
         {/* Information */}
         <div className="mt-5 space-y-3 border-t border-slate-100 pt-4">
           <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Clock3
-              size={16}
-              className="shrink-0 text-teal-600"
-            />
+            <Clock3 size={16} className="shrink-0 text-teal-600" />
 
             <span>
-              {experience}{" "}
-              {experience === 1
-                ? "year"
-                : "years"}{" "}
-              experience
+              {experience} {experience === 1 ? "year" : "years"} experience
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-slate-500">
-            <IndianRupee
-              size={16}
-              className="shrink-0 text-teal-600"
-            />
+            <IndianRupee size={16} className="shrink-0 text-teal-600" />
 
-            <span>
-              ₹{consultationFee} consultation
-            </span>
+            <span>₹{consultationFee} consultation</span>
           </div>
         </div>
 
@@ -361,7 +306,7 @@ function DoctorCard({ doctor }) {
           </Link>
 
           <Link
-            to={`/appointments?doctor=${doctor._id}`}
+            to={`/appointments/book?doctor=${doctor._id}`}
             className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-teal-600 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-teal-700"
           >
             <CalendarDays size={14} />
