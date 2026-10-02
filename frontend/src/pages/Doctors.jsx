@@ -8,18 +8,28 @@ import {
   CalendarDays,
   ArrowRight,
 } from "lucide-react";
+
 import { Link } from "react-router-dom";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import DoctorProfileModal from "../components/DoctorProfileModal";
+
 import { getDoctors } from "../services/api";
 
 function Doctors() {
   const [doctors, setDoctors] = useState([]);
+
   const [search, setSearch] = useState("");
+
   const [specialization, setSpecialization] = useState("All");
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
+
+  // Selected doctor for profile modal
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -44,7 +54,10 @@ function Doctors() {
     fetchDoctors();
   }, []);
 
+  // =========================
   // Get unique specializations
+  // =========================
+
   const specializations = useMemo(() => {
     const values = doctors
       .map((doctor) => doctor.specialization)
@@ -53,7 +66,10 @@ function Doctors() {
     return ["All", ...new Set(values)];
   }, [doctors]);
 
+  // =========================
   // Filter doctors
+  // =========================
+
   const filteredDoctors = useMemo(() => {
     const searchValue = search.trim().toLowerCase();
 
@@ -78,6 +94,7 @@ function Doctors() {
       {/* =========================
           Page Hero
       ========================= */}
+
       <section className="bg-white px-6 pb-12 pt-32 sm:pt-36 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
@@ -99,9 +116,11 @@ function Doctors() {
           {/* =========================
               Search & Filter
           ========================= */}
+
           <div className="mx-auto mt-10 max-w-4xl">
             <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:flex-row">
               {/* Search */}
+
               <div className="relative flex-1">
                 <Search
                   size={19}
@@ -118,6 +137,7 @@ function Doctors() {
               </div>
 
               {/* Specialization */}
+
               <div className="relative md:w-64">
                 <SlidersHorizontal
                   size={18}
@@ -144,9 +164,11 @@ function Doctors() {
       {/* =========================
           Doctors Section
       ========================= */}
+
       <section className="px-6 py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
           {/* Result Count */}
+
           {!loading && !error && (
             <div className="mb-7 flex items-center justify-between">
               <p className="text-sm text-slate-500">
@@ -160,6 +182,7 @@ function Doctors() {
           )}
 
           {/* Loading */}
+
           {loading && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
@@ -169,6 +192,7 @@ function Doctors() {
           )}
 
           {/* Error */}
+
           {!loading && error && (
             <div className="rounded-2xl border border-red-100 bg-white p-10 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
@@ -186,6 +210,7 @@ function Doctors() {
           )}
 
           {/* Empty */}
+
           {!loading && !error && filteredDoctors.length === 0 && (
             <div className="rounded-2xl border border-slate-100 bg-white p-12 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-teal-50">
@@ -215,15 +240,31 @@ function Doctors() {
           )}
 
           {/* Doctors */}
+
           {!loading && !error && filteredDoctors.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredDoctors.map((doctor) => (
-                <DoctorCard key={doctor._id} doctor={doctor} />
+                <DoctorCard
+                  key={doctor._id}
+                  doctor={doctor}
+                  onViewProfile={() => setSelectedDoctor(doctor)}
+                />
               ))}
             </div>
           )}
         </div>
       </section>
+
+      {/* =========================
+          Doctor Profile Modal
+      ========================= */}
+
+      {selectedDoctor && (
+        <DoctorProfileModal
+          doctor={selectedDoctor}
+          onClose={() => setSelectedDoctor(null)}
+        />
+      )}
 
       <Footer />
     </div>
@@ -234,7 +275,7 @@ function Doctors() {
    Doctor Card
 ========================= */
 
-function DoctorCard({ doctor }) {
+function DoctorCard({ doctor, onViewProfile }) {
   const doctorName = doctor.user?.name || doctor.name || "Dental Specialist";
 
   const image = doctor.image
@@ -250,6 +291,7 @@ function DoctorCard({ doctor }) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60">
       {/* Image */}
+
       <div className="relative h-72 overflow-hidden bg-slate-100">
         <img
           src={image}
@@ -261,6 +303,7 @@ function DoctorCard({ doctor }) {
         />
 
         {/* Availability */}
+
         <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-semibold text-emerald-600 shadow-sm backdrop-blur">
           <span className="h-2 w-2 rounded-full bg-emerald-500" />
           Accepting Appointments
@@ -268,6 +311,7 @@ function DoctorCard({ doctor }) {
       </div>
 
       {/* Details */}
+
       <div className="p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
           {specialization}
@@ -280,6 +324,7 @@ function DoctorCard({ doctor }) {
         </p>
 
         {/* Information */}
+
         <div className="mt-5 space-y-3 border-t border-slate-100 pt-4">
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <Clock3 size={16} className="shrink-0 text-teal-600" />
@@ -297,13 +342,19 @@ function DoctorCard({ doctor }) {
         </div>
 
         {/* Actions */}
+
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <Link
-            to={`/doctors/${doctor._id}`}
+          {/* View Profile → Modal */}
+
+          <button
+            type="button"
+            onClick={onViewProfile}
             className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-600"
           >
             View Profile
-          </Link>
+          </button>
+
+          {/* Book → Dedicated Doctor Booking */}
 
           <Link
             to={`/appointments/book?doctor=${doctor._id}`}
@@ -342,6 +393,7 @@ function DoctorSkeleton() {
 
         <div className="mt-5 grid grid-cols-2 gap-2">
           <div className="h-10 animate-pulse rounded-xl bg-slate-200" />
+
           <div className="h-10 animate-pulse rounded-xl bg-slate-200" />
         </div>
       </div>

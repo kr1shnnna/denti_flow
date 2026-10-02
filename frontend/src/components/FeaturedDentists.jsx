@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CalendarDays, Clock3, Stethoscope } from "lucide-react";
 
 import { getDoctors } from "../services/api";
+import DoctorProfileModal from "./DoctorProfileModal";
 
 function FeaturedDentists() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -35,84 +37,98 @@ function FeaturedDentists() {
   const featuredDoctors = doctors.slice(0, 4);
 
   return (
-    <section className="bg-slate-50 px-6 py-20 sm:py-24 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        {/* Section Header */}
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <span className="inline-flex items-center rounded-full bg-teal-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-teal-600">
-              Our Dentists
-            </span>
+    <>
+      <section className="bg-slate-50 px-6 py-20 sm:py-24 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          {/* Section Header */}
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="inline-flex items-center rounded-full bg-teal-50 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-teal-600">
+                Our Dentists
+              </span>
 
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Meet our experienced
-              <span className="text-teal-600"> dentists.</span>
-            </h2>
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                Meet our experienced
+                <span className="text-teal-600"> dentists.</span>
+              </h2>
 
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-500">
-              Find the right dental professional for your needs and book an
-              appointment at a time that works for you.
-            </p>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-500">
+                Find the right dental professional for your needs and book an
+                appointment at a time that works for you.
+              </p>
+            </div>
+
+            {/* View All */}
+            <Link
+              to="/doctors"
+              className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-teal-600 transition hover:text-teal-700"
+            >
+              View All Doctors
+              <ArrowRight
+                size={17}
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </Link>
           </div>
 
-          {/* View All */}
-          <Link
-            to="/doctors"
-            className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-teal-600 transition hover:text-teal-700"
-          >
-            View All Doctors
-            <ArrowRight
-              size={17}
-              className="transition-transform group-hover:translate-x-1"
-            />
-          </Link>
+          {/* Loading */}
+          {loading && (
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[1, 2, 3, 4].map((item) => (
+                <DoctorSkeleton key={item} />
+              ))}
+            </div>
+          )}
+
+          {/* Error */}
+          {!loading && error && (
+            <div className="mt-12 rounded-2xl border border-red-100 bg-white p-8 text-center">
+              <p className="text-sm font-medium text-red-600">{error}</p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Please try again later.
+              </p>
+            </div>
+          )}
+
+          {/* Empty */}
+          {!loading && !error && featuredDoctors.length === 0 && (
+            <div className="mt-12 rounded-2xl border border-slate-100 bg-white p-10 text-center">
+              <Stethoscope size={32} className="mx-auto text-slate-300" />
+
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">
+                No dentists available
+              </h3>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Please check back later.
+              </p>
+            </div>
+          )}
+
+          {/* Doctors */}
+          {!loading && !error && featuredDoctors.length > 0 && (
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredDoctors.map((doctor) => (
+                <DoctorCard
+                  key={doctor._id}
+                  doctor={doctor}
+                  onViewProfile={() => setSelectedDoctor(doctor)}
+                />
+              ))}
+            </div>
+          )}
         </div>
+      </section>
 
-        {/* Loading */}
-        {loading && (
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((item) => (
-              <DoctorSkeleton key={item} />
-            ))}
-          </div>
-        )}
-
-        {/* Error */}
-        {!loading && error && (
-          <div className="mt-12 rounded-2xl border border-red-100 bg-white p-8 text-center">
-            <p className="text-sm font-medium text-red-600">{error}</p>
-
-            <p className="mt-2 text-sm text-slate-500">
-              Please try again later.
-            </p>
-          </div>
-        )}
-
-        {/* Empty */}
-        {!loading && !error && featuredDoctors.length === 0 && (
-          <div className="mt-12 rounded-2xl border border-slate-100 bg-white p-10 text-center">
-            <Stethoscope size={32} className="mx-auto text-slate-300" />
-
-            <h3 className="mt-4 text-lg font-semibold text-slate-900">
-              No dentists available
-            </h3>
-
-            <p className="mt-2 text-sm text-slate-500">
-              Please check back later.
-            </p>
-          </div>
-        )}
-
-        {/* Doctors */}
-        {!loading && !error && featuredDoctors.length > 0 && (
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredDoctors.map((doctor) => (
-              <DoctorCard key={doctor._id} doctor={doctor} />
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
+      {/* Doctor Profile Modal */}
+      {selectedDoctor && (
+        <DoctorProfileModal
+          doctor={selectedDoctor}
+          onClose={() => setSelectedDoctor(null)}
+        />
+      )}
+    </>
   );
 }
 
@@ -120,7 +136,7 @@ function FeaturedDentists() {
    Doctor Card
 ========================= */
 
-function DoctorCard({ doctor }) {
+function DoctorCard({ doctor, onViewProfile }) {
   const doctorName = doctor.user?.name || "Dental Specialist";
 
   const image = doctor.image
@@ -154,7 +170,9 @@ function DoctorCard({ doctor }) {
           {specialization}
         </p>
 
-        <h3 className="mt-1 text-lg font-bold text-slate-900">{doctorName}</h3>
+        <h3 className="mt-1 text-lg font-bold text-slate-900">
+          {doctorName}
+        </h3>
 
         <p className="mt-1 text-sm text-slate-500">
           {doctor.qualification || "Dental Professional"}
@@ -177,13 +195,16 @@ function DoctorCard({ doctor }) {
 
         {/* Actions */}
         <div className="mt-5 grid grid-cols-2 gap-2">
-          <Link
-            to={`/doctors/${doctor._id}`}
+          {/* View Profile → Modal */}
+          <button
+            type="button"
+            onClick={onViewProfile}
             className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:border-teal-200 hover:bg-teal-50 hover:text-teal-600"
           >
             View Profile
-          </Link>
+          </button>
 
+          {/* Book → Dedicated Doctor Booking */}
           <Link
             to={`/appointments/book?doctor=${doctor._id}`}
             className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-teal-600 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-teal-700"
@@ -221,6 +242,7 @@ function DoctorSkeleton() {
 
         <div className="mt-5 grid grid-cols-2 gap-2">
           <div className="h-10 animate-pulse rounded-xl bg-slate-200" />
+
           <div className="h-10 animate-pulse rounded-xl bg-slate-200" />
         </div>
       </div>

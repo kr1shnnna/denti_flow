@@ -49,7 +49,7 @@ function Hero() {
           {/* Actions */}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              to="/doctors"
+              to="/appointments/book"
               className="group inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-teal-900/20 transition hover:bg-teal-500"
             >
               <CalendarDays size={18} />
