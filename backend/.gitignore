@@ -2,3 +2,5 @@ node_modules/
 .env
 
 scripts/seedDoctors.js
+scripts/setDefaultAvailability.js
+scripts/fixDoctorAvailability.js
