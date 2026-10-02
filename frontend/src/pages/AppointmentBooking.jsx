@@ -401,7 +401,7 @@ function AppointmentBooking() {
                                 : "border-slate-100 bg-white hover:border-teal-200 hover:bg-slate-50"
                             }`}
                           >
-                            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                            <div className="h-32 w-32  overflow-hidden rounded-xl ">
                               {doctor.image ? (
                                 <img
                                   src={
@@ -412,7 +412,7 @@ function AppointmentBooking() {
                                       : `http://localhost:5000${doctor.image}`
                                   }
                                   alt={doctor.name}
-                                  className="h-full w-full object-cover"
+                                  className="h-full w-full object-contain"
                                 />
                               ) : (
                                 <div className="flex h-full w-full items-center justify-center text-slate-400">
